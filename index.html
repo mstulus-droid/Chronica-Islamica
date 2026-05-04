@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chronica Islamica</title>
+<link rel="icon" href="assets/chronica-islamica-icon.svg" type="image/svg+xml">
+<link rel="manifest" href="site.webmanifest">
+<meta name="theme-color" content="#2c2418">
+<meta name="description" content="Linimasa sejarah Islam dengan pendekatan historis-sekuler.">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --bg2: #ede7d9;
+    --white: #ffffff;
+    --text: #2c2418;
+    --text2: #6b5e4a;
+    --text3: #9c8e7a;
+    --border: #d8cfc2;
+    --tick: #b8aa96;
+    --c-nabi:     #c87d00;
+    --c-khalifah: #c43a0a;
+    --c-sahabat:  #1068b0;
+    --c-wanita:   #a83070;
+    --c-panglima: #6a2a80;
+    --c-ulama:    #1a7840;
+    --c-event:    #4a6572;
+    --label-w: 200px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* TOP BAR */
+  .topbar {
+    background: #fff;
+    border-bottom: 2px solid var(--border);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+    z-index: 30;
+  }
+  .topbar h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    flex: 1;
+  }
+  .app-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(44,36,24,0.16);
+  }
+  .topbar h1 small {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text3);
+    margin-left: 8px;
+  }
+  .search-wrap { position: relative; }
+  .search-wrap input {
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 12px 5px 28px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.8rem;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+    width: 155px;
+    transition: border-color 0.15s;
+  }
+  .search-wrap input:focus { border-color: #999; }
+  .search-icon {
+    position: absolute; left: 8px; top: 50%;
+    transform: translateY(-50%); font-size: 0.7rem; pointer-events: none;
+  }
+  .count-badge { font-size: 0.72rem; color: var(--text3); font-weight: 700; white-space: nowrap; }
+
+  /* FILTER ROW */
+  .filter-row {
+    background: #faf7f2;
+    border-bottom: 1px solid var(--border);
+    padding: 5px 10px 5px calc(var(--label-w) + 10px);
+    display: flex;
+    gap: 5px;
+    flex-shrink: 0;
+    overflow-x: auto;
+    align-items: center;
+  }
+  .filter-row::-webkit-scrollbar { display: none; }
+  .row-sep {
+    width: 1px;
+    height: 22px;
+    background: var(--border);
+    margin: 0 4px;
+    flex-shrink: 0;
+  }
+  .chip {
+    padding: 3px 11px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    color: var(--text2);
+    background: #fff;
+    transition: all 0.15s;
+    display: flex; align-items: center; gap: 4px;
+    user-select: none;
+  }
+  .chip .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .chip.active, .chip:hover { color: #fff; border-color: transparent; }
+  .chip[data-cat="all"].active   { background: var(--text2); border-color: var(--text2); }
+  .chip[data-cat="all"]:not(.active):hover { background: var(--text2); }
+  .chip[data-cat="nabi"].active      { background: var(--c-nabi); }
+  .chip[data-cat="khalifah"].active  { background: var(--c-khalifah); }
+  .chip[data-cat="sahabat"].active   { background: var(--c-sahabat); }
+  .chip[data-cat="wanita"].active    { background: var(--c-wanita); }
+  .chip[data-cat="panglima"].active  { background: var(--c-panglima); }
+  .chip[data-cat="ulama"].active     { background: var(--c-ulama); }
+  .chip[data-cat="event"].active     { background: var(--c-event); }
+  .chip[data-cat="nabi"]:not(.active):hover      { background: var(--c-nabi); }
+  .chip[data-cat="khalifah"]:not(.active):hover  { background: var(--c-khalifah); }
+  .chip[data-cat="sahabat"]:not(.active):hover   { background: var(--c-sahabat); }
+  .chip[data-cat="wanita"]:not(.active):hover    { background: var(--c-wanita); }
+  .chip[data-cat="panglima"]:not(.active):hover  { background: var(--c-panglima); }
+  .chip[data-cat="ulama"]:not(.active):hover     { background: var(--c-ulama); }
+  .chip[data-cat="event"]:not(.active):hover     { background: var(--c-event); }
+  .chip.view-chip.active { background: #2d6cdf; border-color: #2d6cdf; color: #fff; }
+  .chip.view-chip:not(.active):hover { background: #2d6cdf; border-color: #2d6cdf; color: #fff; }
+
+  /* MAIN */
+  .main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* NAMES COLUMN */
+  .names-col {
+    width: var(--label-w);
+    flex-shrink: 0;
+    background: var(--bg2);
+    border-right: 2px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    overflow: hidden;
+  }
+  .names-header {
+    height: 76px; /* ruler 56 + era-strip 20 */
+    background: var(--bg2);
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: flex-end;
+    padding: 0 10px 10px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    flex-shrink: 0;
+  }
+  .names-scroll {
+    flex: 1;
+    overflow-y: hidden;
+  }
+  .name-cell {
+    height: 32px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px 0 10px;
+    gap: 6px;
+    cursor: pointer;
+    transition: background 0.12s;
+  }
+  .name-cell:hover { background: rgba(0,0,0,0.05); }
+  .name-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .name-text {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    line-height: 1;
+  }
+
+  /* CHART SCROLL */
+  .chart-scroll {
+    flex: 1;
+    overflow: auto;
+    position: relative;
+  }
+  .chart-scroll::-webkit-scrollbar { height: 7px; width: 5px; }
+  .chart-scroll::-webkit-scrollbar-track { background: var(--bg2); }
+  .chart-scroll::-webkit-scrollbar-thumb { background: var(--tick); border-radius: 3px; }
+
+  .chart-inner {
+    position: relative;
+    min-height: 100%;
+  }
+
+  /* RULER */
+  .ruler {
+    height: 56px;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    z-index: 8;
+  }
+  .tick {
+    position: absolute;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transform: translateX(-50%);
+  }
+  .tick-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--text2);
+    margin-bottom: 3px;
+    white-space: nowrap;
+  }
+  .tick-line { width: 1px; background: var(--tick); }
+  .tick.major .tick-line { height: 12px; }
+  .tick.mid .tick-label { font-size: 0.58rem; color: var(--tick); font-weight: 600; }
+  .tick.mid .tick-line { height: 7px; }
+  .tick.minor .tick-line { height: 4px; background: #ddd; }
+
+  /* ERA STRIP */
+  .era-strip {
+    height: 20px;
+    position: sticky;
+    top: 56px;
+    z-index: 7;
+    background: #faf7f2;
+    border-bottom: 2px solid var(--border);
+    overflow: hidden;
+  }
+  .era-block {
+    position: absolute;
+    top: 0; bottom: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    border-right: 1px solid rgba(0,0,0,0.1);
+  }
+
+  /* BARS */
+  .bars-layer {
+    position: absolute;
+    left: 0; right: 0;
+    top: 76px; /* ruler + era strip */
+  }
+  .bar-row {
+    height: 32px;
+    margin-bottom: 4px;
+    position: relative;
+  }
+  .bar {
+    position: absolute;
+    top: 50%; transform: translateY(-50%);
+    height: 22px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 7px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+    transition: filter 0.12s, transform 0.1s, box-shadow 0.1s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .bar-label {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.72rem;
+    font-weight: 800;
+    color: #1f2a35;
+    white-space: nowrap;
+    pointer-events: none;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.65);
+  }
+  .bar:hover {
+    filter: brightness(1.1);
+    transform: translateY(-50%) scaleY(1.12);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.28);
+    z-index: 10;
+  }
+  .bar.bar-nabi {
+    height: 30px;
+    box-shadow: 0 0 14px rgba(200,125,0,0.65), 0 0 4px rgba(255,215,100,0.4);
+    border: 2px solid rgba(255,215,100,0.55);
+    z-index: 6;
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .bar.bar-nabi:hover {
+    box-shadow: 0 0 22px rgba(200,125,0,0.9), 0 0 6px rgba(255,215,100,0.6);
+    filter: brightness(1.2);
+    z-index: 15;
+  }
+  .event-marker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 13px;
+    line-height: 1;
+    cursor: pointer;
+    color: #4a6572;
+    text-shadow: 0 0 5px rgba(74,101,114,0.7);
+    transition: text-shadow 0.15s, transform 0.1s;
+    z-index: 5;
+  }
+  .event-marker:hover {
+    text-shadow: 0 0 10px rgba(74,101,114,1), 0 0 4px rgba(100,180,255,0.6);
+    transform: translate(-50%, -50%) scale(1.3);
+    z-index: 15;
+  }
+  .age-tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.75);
+    color: #fff;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.6rem;
+    font-weight: 800;
+    pointer-events: none;
+    z-index: 25;
+    display: none;
+  }
+  .reign-icon {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+    z-index: 5;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+  }
+  .work-icon {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 10px;
+    line-height: 1;
+    z-index: 5;
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
+    cursor: help;
+  }
+
+  /* GRID */
+  .grid-layer {
+    position: absolute;
+    left: 0; top: 76px; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .grid-vline {
+    position: absolute; top: 0; bottom: 0;
+    width: 1px; background: #e0d8cc;
+  }
+  .grid-vline.major { background: var(--tick); }
+  .era-band-bg {
+    position: absolute; top: 0; bottom: 0;
+  }
+
+  /* POPUP */
+  .popup {
+    display: none;
+    position: fixed;
+    z-index: 500;
+    background: #fff;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    max-width: 310px;
+    min-width: 230px;
+    overflow: hidden;
+    animation: popIn 0.16s ease;
+  }
+  .popup.show { display: block; }
+  @keyframes popIn {
+    from { opacity:0; transform: scale(0.94) translateY(5px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .popup-hd {
+    padding: 11px 14px 9px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .popup-cat { font-size: 0.62rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 2px; }
+  .popup-name { font-size: 0.97rem; font-weight: 800; color: var(--text); line-height: 1.2; }
+  .popup-yr { font-size: 0.72rem; color: var(--text3); font-weight: 600; margin-top: 2px; }
+  .popup-close {
+    position: absolute; top: 8px; right: 10px;
+    background: none; border: none;
+    font-size: 1rem; color: var(--text3); cursor: pointer;
+  }
+  .popup-close:hover { color: var(--text); }
+  .popup-bd { padding: 9px 14px 13px; }
+  .popup-loc { font-size: 0.7rem; color: var(--text3); font-weight: 600; margin-bottom: 7px; }
+  .popup-bio { font-size: 0.8rem; color: var(--text2); line-height: 1.55; }
+  .cursor-line {
+    position: absolute;
+    width: 1.5px;
+    background: rgba(200, 60, 20, 0.45);
+    pointer-events: none;
+    z-index: 20;
+    display: none;
+  }
+  .cursor-info {
+    position: absolute;
+    background: rgba(44, 36, 24, 0.88);
+    color: #fff;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    white-space: nowrap;
+    pointer-events: none;
+    z-index: 21;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  /* POPUP HANDLE (mobile) */
+  .popup-handle {
+    display: none;
+    width: 38px; height: 4px;
+    background: #ccc;
+    border-radius: 2px;
+    margin: 10px auto 2px;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(55%); opacity: 0.4; }
+    to   { transform: translateY(0);   opacity: 1; }
+  }
+
+  /* MOBILE */
+  @media (max-width: 640px) {
+    .topbar { padding: 6px 10px; gap: 8px; }
+    .topbar h1 { font-size: 0.88rem; }
+    .topbar h1 small { display: none; }
+    .search-wrap input { width: 110px; font-size: 0.75rem; }
+    .count-badge { display: none; }
+
+    .filter-row { padding-left: 10px; }
+    .names-col  { display: none !important; }
+
+    .popup-handle { display: block; }
+    .popup.show {
+      left: 0 !important;
+      right: 0 !important;
+      top: auto !important;
+      bottom: 0 !important;
+      max-width: 100vw;
+      min-width: 100vw;
+      border-radius: 14px 14px 0 0;
+      border-left: none;
+      border-right: none;
+      border-bottom: none;
+      max-height: 60vh;
+      overflow-y: auto;
+      animation: slideUp 0.22s ease;
+    }
+
+    .bar { height: 18px; }
+    .bar.bar-nabi { height: 24px; }
+    .event-marker { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img class="app-icon" src="assets/chronica-islamica-icon.svg" alt="" aria-hidden="true">
+  <h1>Chronica Islamica <small>Linimasa Sejarah Islam</small></h1>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Cari tokoh…">
+  </div>
+  <span class="count-badge" id="countBadge"></span>
+</div>
+
+<div class="filter-row">
+  <div class="chip active" data-cat="all">Semua</div>
+  <div class="chip" data-cat="nabi"><span class="dot" style="background:var(--c-nabi)"></span>Nabi</div>
+  <div class="chip" data-cat="khalifah"><span class="dot" style="background:var(--c-khalifah)"></span>Penguasa</div>
+  <div class="chip" data-cat="sahabat"><span class="dot" style="background:var(--c-sahabat)"></span>Sahabat</div>
+  <div class="chip" data-cat="wanita"><span class="dot" style="background:var(--c-wanita)"></span>Wanita</div>
+  <div class="chip" data-cat="panglima"><span class="dot" style="background:var(--c-panglima)"></span>Panglima</div>
+  <div class="chip" data-cat="ulama"><span class="dot" style="background:var(--c-ulama)"></span>Ilmuwan/Ulama</div>
+  <div class="chip" data-cat="event"><span class="dot" style="background:var(--c-event)"></span>Event</div>
+  <div class="row-sep"></div>
+  <div class="chip view-chip active" id="panelToggle" style="margin-left:auto">Panel Nama: ON</div>
+</div>
+
+<div class="main">
+  <div class="names-col">
+    <div class="names-header">Nama Tokoh</div>
+    <div class="names-scroll" id="namesScroll">
+      <div id="namesList"></div>
+    </div>
+  </div>
+  <div class="chart-scroll" id="chartScroll">
+    <div class="chart-inner" id="chartInner">
+      <div class="ruler" id="ruler"></div>
+      <div class="era-strip" id="eraStrip"></div>
+      <div class="grid-layer" id="gridLayer"></div>
+      <div class="bars-layer" id="barsLayer"></div>
+    </div>
+  </div>
+</div>
+
+<div class="popup" id="popup">
+  <div class="popup-handle"></div>
+  <div class="popup-hd">
+    <button class="popup-close" id="popupClose">✕</button>
+    <div class="popup-cat" id="pCat"></div>
+    <div class="popup-name" id="pName"></div>
+    <div class="popup-yr" id="pYr"></div>
+  </div>
+  <div class="popup-bd">
+    <div class="popup-loc" id="pLoc"></div>
+    <div class="popup-bio" id="pBio"></div>
+  </div>
+</div>
+
+<script>
+const CAT_COLORS = {
+  nabi:'#c87d00', khalifah:'#c43a0a', sahabat:'#1068b0',
+  wanita:'#a83070', panglima:'#6a2a80', ulama:'#1a7840', event:'#4a6572'
+};
+const CAT_LABEL = {
+  nabi:'Pendiri Islam', khalifah:'Penguasa/Khalifah', sahabat:'Pengikut Muhammad',
+  wanita:'Tokoh Wanita', panglima:'Panglima Perang', ulama:'Ilmuwan/Ulama', event:'Peristiwa'
+};
+
+function parseDied(s) {
+  if (!s) return null;
+  const m = String(s).match(/(\d{3,4})\s*M/);
+  return m ? +m[1] : null;
+}
+
+const FIGURES = [
+  {name:"Khadijah binti Khuwailid",born:555,died:"619 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Pedagang elite Makkah dan istri pertama Muhammad. Dalam tradisi Islam ia digambarkan sebagai pengikut paling awal sekaligus penopang ekonomi dan sosial gerakan Muhammad pada fase Makkah. Ibunda Fatimah az-Zahra."},
+  {name:"Hamzah bin Abdul Muthalib",born:567,died:"625 M",city:"Makkah",country:"Arab Saudi",cat:"panglima",bio:"Paman Muhammad dan tokoh klan Bani Hasyim. Bergabung dengan komunitas Muslim pada fase Makkah, memperkuat posisi sosial Muhammad di tengah tekanan Quraisy. Tewas di Perang Uhud (625 M) oleh Wahsyi ibn Harb."},
+  {name:"Salman al-Farisi",born:568,died:"656 M",city:"Isfahan",country:"Iran",cat:"sahabat",bio:"Pengikut Muhammad asal Persia. Tradisi awal mengaitkannya dengan usulan strategi parit (khandaq) dalam pertahanan Madinah dari serangan koalisi Quraisy dan sekutunya."},
+  {name:"MUHAMMAD",born:570,died:"632 M",city:"Makkah",country:"Arab Saudi",cat:"nabi",bio:"Pendiri agama Islam dan pemimpin politik komunitas Muslim awal. Menurut laporan Muslim awal, pengalaman religius pertamanya terjadi sekitar usia 40 tahun di Gua Hira. Hijrah ke Madinah pada 622 M dan kemudian menyatukan sebagian besar Jazirah Arab."},
+  {name:"Ammar bin Yasir",born:570,died:"657 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Salah satu pengikut pertama Muhammad. Disiksa bersama keluarganya di padang pasir Makkah. Tewas dalam Perang Shiffin di pihak Ali bin Abi Thalib."},
+  {name:"Abu Bakar Ash-Shiddiq",born:573,died:"634 M",city:"Makkah",country:"Arab Saudi",cat:"khalifah",reignStart:632,bio:"Khalifah pertama setelah Muhammad (632–634 M). Dalam tradisi Sunni ia ditempatkan sebagai pengikut dewasa awal dan pendamping hijrah. Pemerintahannya berfokus pada konsolidasi politik Arab melalui Perang Riddah."},
+  {name:"Utsman bin Affan",born:577,died:"656 M",city:"Thaif",country:"Arab Saudi",cat:"khalifah",reignStart:644,bio:"Khalifah ketiga (644–656 M) dari klan Umayyah. Masa pemerintahannya memperluas wilayah dan menstandardisasi mushaf Al-Qur'an, tetapi juga memicu kritik atas nepotisme. Dibunuh pemberontak di Madinah."},
+  {name:"Abdurrahman bin Auf",born:580,died:"652 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pengusaha paling sukses di kalangan pengikut awal Muhammad. Dikenal dermawan dan hidup sederhana meski kaya raya."},
+  {name:"Bilal bin Rabah",born:580,died:"640 M",city:"Habasyah",country:"Ethiopia",cat:"sahabat",bio:"Mantan budak asal Afrika Timur yang menjadi simbol penting komunitas Muslim awal. Tradisi Islam mengaitkannya dengan peran muazin pertama dan pembebasannya oleh Abu Bakar."},
+  {name:"Abu Dzar al-Ghifari",born:581,died:"652 M",city:"Ghifar",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut Muhammad yang dikenal keras menentang kemewahan dan ketimpangan ekonomi. Diasingkan ke Rabadzah oleh Khalifah Utsman karena kritik-kritiknya, dan meninggal dalam pengasingan."},
+  {name:"Abu Ubaidah bin Jarrah",born:583,died:"639 M",city:"Makkah",country:"Arab Saudi",cat:"panglima",bio:"Panglima penaklukan Suriah, dikenal dengan gelar 'Amin al-Ummah'. Meninggal akibat wabah Amwas di Syam."},
+  {name:"Umar bin Khattab",born:584,died:"644 M",city:"Makkah",country:"Arab Saudi",cat:"khalifah",reignStart:634,bio:"Khalifah kedua (634–644 M), dijuluki 'Al-Faruq'. Di bawah kepemimpinannya kekuasaan Islam meluas ke Mesir, Persia, dan Levant. Dibunuh Abu Lu'lu'ah, seorang budak Persia, saat shalat Subuh."},
+  {name:"Khalid bin Walid",born:592,died:"642 M",city:"Makkah",country:"Arab Saudi",cat:"panglima",bio:"Komandan Quraisy yang kemudian bergabung dengan Muhammad pada 629 M. Memimpin kampanye Riddah dan ekspansi ke Irak serta Syam. Reputasi militernya sangat besar dalam tradisi Muslim, terutama setelah kemenangan Yarmuk (636 M)."},
+  {name:"Mus'ab bin Umair",born:594,died:"625 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pemuda bangsawan Makkah yang meninggalkan kemewahan untuk bergabung dengan gerakan Muhammad. Utusan pertama ke Madinah sebagai penyebar Islam. Tewas di Perang Uhud saat membawa panji pasukan."},
+  {name:"Zubair bin Awwam",born:594,died:"656 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut awal Muhammad dan tokoh militer terkemuka. Dibunuh dari belakang oleh Ibnu Jarmuz dalam Perang Jamal (656 M) setelah menarik diri dari pertempuran."},
+  {name:"Thalhah bin Ubaidillah",born:594,died:"656 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut awal Muhammad, dijuluki 'Thalhah al-Jud' atas kedermawanannya. Dikenal karena melindungi Muhammad di Perang Uhud. Tewas dalam Perang Jamal."},
+  {name:"Sa'ad bin Abi Waqqas",born:595,died:"674 M",city:"Makkah",country:"Arab Saudi",cat:"panglima",bio:"Panglima penaklukan Persia. Memimpin Perang Qadisiyyah (636 M) yang menghancurkan kekaisaran Sasanid. Pendiri kota Kufah."},
+  {name:"Ali bin Abi Thalib",born:599,died:"661 M",city:"Makkah",country:"Arab Saudi",cat:"khalifah",reignStart:656,bio:"Khalifah keempat (656–661 M), sepupu dan menantu Muhammad, imam pertama dalam tradisi Syiah. Diklaim sebagai anak pertama yang memeluk Islam. Dibunuh Ibnu Muljam saat shalat Subuh."},
+  {name:"Muawiyah bin Abi Sufyan",born:602,died:"680 M",city:"Makkah",country:"Arab Saudi",cat:"khalifah",reignStart:661,bio:"Pendiri Dinasti Umayyah (661–680 M). Memindahkan ibu kota ke Damaskus. Membangun sistem administrasi kerajaan Islam pertama."},
+  {name:"Abu Hurairah",born:603,died:"681 M",city:"Bani Daus",country:"Yaman",cat:"sahabat",bio:"Perawi hadits paling produktif di kalangan pengikut Muhammad (5.000+ riwayat). Memeluk Islam tahun 7 H. Gubernur Bahrain di masa pemerintahan Umar bin Khattab."},
+  {name:"Fatimah az-Zahra",born:605,died:"632 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Putri bungsu Muhammad dan Khadijah, dijuluki 'Az-Zahra'. Istri Ali bin Abi Thalib dan ibu Hasan serta Husain. Meninggal beberapa bulan setelah ayahnya."},
+  {name:"Zaid bin Tsabit",born:610,died:"665 M",city:"Madinah",country:"Arab Saudi",cat:"sahabat",bio:"Pencatat teks Al-Qur'an untuk Muhammad. Memimpin proyek kodifikasi Al-Qur'an di masa Abu Bakar dan standardisasi mushaf di masa Utsman."},
+  {name:"Anas bin Malik",born:612,died:"709 M",city:"Madinah",country:"Arab Saudi",cat:"sahabat",bio:"Pelayan Muhammad selama 10 tahun sejak usia 10 tahun. Perawi banyak hadits. Meninggal sekitar usia 97–107 tahun."},
+  {name:"Aisyah binti Abu Bakar",born:614,died:"678 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Istri Muhammad dan putri Abu Bakar, bergelar 'Ummul Mukminin'. Perawi 2.000+ hadits dan ahli fiqih yang menjadi rujukan generasi berikutnya."},
+  {name:"Abdullah bin Abbas",born:619,died:"687 M",city:"Makkah",country:"Arab Saudi",cat:"ulama",bio:"Sepupu Muhammad, dikenal sebagai penafsir Al-Qur'an generasi tabiin dengan julukan 'Turjumanul Qur'an'. Ahli tafsir dan fiqih yang sangat berpengaruh."},
+  {name:"Hasan al-Basri",born:642,died:"728 M",city:"Madinah",country:"Arab Saudi",cat:"ulama",bio:"Ulama dan sufi besar generasi Tabiin. Ceramah-ceramahnya tentang asketisme dan kematian sangat berpengaruh dan menjadi rujukan aliran tasawuf."},
+  {name:"Abdul Malik bin Marwan",born:646,died:"705 M",city:"Madinah",country:"Arab Saudi",cat:"khalifah",reignStart:685,bio:"Khalifah Umayyah yang mempersatukan kembali kekhalifahan. Bahasa Arab dijadikan bahasa resmi administrasi. Membangun Kubah Batu di Yerusalem."},
+  {name:"Al-Walid bin Abdul Malik",born:668,died:"715 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:705,bio:"Khalifah Umayyah di puncak kejayaan (705–715 M). Islam menaklukkan Spanyol dan Sindh pada masanya."},
+  {name:"Thariq bin Ziyad",born:670,died:"720 M",city:"Atlas",country:"Maroko",cat:"panglima",bio:"Komandan Berber dalam penaklukan Iberia (711 M). Namanya dikaitkan dengan Gibraltar (Jabal Thariq). Kisah pembakaran kapal populer dalam legenda kemudian, tetapi status historisnya diperdebatkan."},
+  {name:"Qutaibah bin Muslim",born:669,died:"715 M",city:"Basrah",country:"Irak",cat:"panglima",bio:"Panglima penaklukan Asia Tengah — Samarkand, Bukhara, hingga perbatasan China. Membawa Islam ke wilayah Uzbekistan dan Tajikistan."},
+  {name:"Umar bin Abdul Aziz",born:682,died:"720 M",city:"Madinah",country:"Arab Saudi",cat:"khalifah",reignStart:717,bio:"Khalifah Umayyah kedelapan (717–720 M), dikenal atas reformasi fiskal dan penghapusan diskriminasi non-Arab. Meninggal usia 38 tahun, diduga diracun."},
+  {name:"Muhammad bin Qasim",born:695,died:"715 M",city:"Thaif",country:"Arab Saudi",cat:"panglima",bio:"Komandan Umayyah yang menaklukkan Sindh (711–712 M), membuka jalur kekuasaan Arab ke anak benua India. Pemerintahannya memakai kompromi pajak dan status hukum bagi komunitas lokal non-Muslim."},
+  {name:"Abu Hanifah",born:699,died:"767 M",city:"Kufah",country:"Irak",cat:"ulama",bio:"Pendiri mazhab Hanafi — menekankan penalaran rasional (ra'yu) dan analogi (qiyas). Mazhabnya paling luas dianut: Turki, Asia Tengah, Asia Selatan."},
+  {name:"Malik bin Anas",born:711,died:"795 M",city:"Madinah",country:"Arab Saudi",cat:"ulama",works:[{year:795,title:"Al-Muwaththa'"}],bio:"Pendiri mazhab Maliki, penyusun Al-Muwaththa. Pernah disiksa gubernur karena fatwa tentang talak paksa."},
+  {name:"Harun ar-Rasyid",born:763,died:"809 M",city:"Rayy",country:"Iran",cat:"khalifah",reignStart:786,bio:"Khalifah Abbasiyah masa keemasan (786–809 M). Baghdad menjadi kota terbesar di dunia. Kisahnya diabadikan dalam Seribu Satu Malam."},
+  {name:"Asy-Syafi'i",born:767,died:"820 M",city:"Gaza",country:"Palestina",cat:"ulama",works:[{year:820,title:"Al-Risalah"}],bio:"Pendiri mazhab Syafi'i dan perintis Ushul Fiqih sebagai disiplin ilmu. Penyusun Al-Risalah. Mazhabnya dominan di Indonesia, Malaysia, dan Afrika Timur."},
+  {name:"Al-Ma'mun",born:786,died:"833 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:813,bio:"Khalifah Abbasiyah ketujuh, pendiri Baitul Hikmah di Baghdad. Mensponsori penerjemahan besar-besaran karya ilmu Yunani, Persia, dan India."},
+  {name:"Ahmad bin Hanbal",born:780,died:"855 M",city:"Baghdad",country:"Irak",cat:"ulama",works:[{year:855,title:"Musnad Ahmad"}],bio:"Pendiri mazhab Hanbali. Dipenjara dan dicambuk bertahun-tahun karena menolak doktrin Mu'tazilah yang didukung negara. Penyusun Musnad Ahmad."},
+  {name:"Imam Bukhari",born:810,died:"870 M",city:"Bukhara",country:"Uzbekistan",cat:"ulama",works:[{year:870,title:"Shahih Bukhari"}],bio:"Penyusun Shahih Bukhari — koleksi hadits paling otoritatif dalam tradisi Sunni, diseleksi dari 600.000 hadits selama 16 tahun."},
+  {name:"Imam Muslim",born:815,died:"875 M",city:"Nishapur",country:"Iran",cat:"ulama",works:[{year:875,title:"Shahih Muslim"}],bio:"Penyusun Shahih Muslim. Bersama Shahih Bukhari disebut 'Ash-Shahihain', referensi utama hadits dalam Islam."},
+  {name:"Abu Dawud",born:817,died:"889 M",city:"Sistan",country:"Iran",cat:"ulama",works:[{year:889,title:"Sunan Abu Dawud"}],bio:"Penyusun Sunan Abu Dawud, salah satu dari enam kitab hadits utama (Kutub as-Sittah). Menyaring 500.000 hadits menjadi 4.800."},
+  {name:"At-Tirmidzi",born:824,died:"892 M",city:"Termez",country:"Uzbekistan",cat:"ulama",works:[{year:892,title:"Jami' at-Tirmidzi"}],bio:"Penyusun Jami' at-Tirmidzi, salah satu Kutub as-Sittah. Unik karena memuat diskusi derajat hadits dan perbedaan pendapat ulama fiqih."},
+  {name:"An-Nasa'i",born:829,died:"915 M",city:"Nasa",country:"Turkmenistan",cat:"ulama",works:[{year:915,title:"Sunan an-Nasa'i"}],bio:"Penyusun Sunan an-Nasa'i, salah satu Kutub as-Sittah. Kritikus hadits paling ketat di zamannya. Meninggal di Palestina."},
+  {name:"Utsman bin Madh'un",born:560,died:"624 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut awal Muhammad yang diklaim sebagai orang pertama dimakamkan di Pemakaman Baqi'. Ikut hijrah ke Habsyah dan Madinah. Meninggal akibat luka yang diderita."},
+  {name:"Ubay bin Ka'b",born:580,died:"640 M",city:"Madinah",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut Muhammad yang ahli dalam bacaan Al-Qur'an. Muhammad menyebutnya 'Sayyidul Qura' (pemimpin para pembaca Al-Qur'an)."},
+  {name:"Ja'far bin Abi Thalib",born:590,died:"629 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Saudara sepupu Muhammad, dijuluki 'Dzu Janahain'. Memimpin kelompok hijrah ke Habsyah. Tewas dalam Perang Mu'tah."},
+  {name:"Abdullah bin Mas'ud",born:594,died:"653 M",city:"Makkah",country:"Arab Saudi",cat:"sahabat",bio:"Pengikut Muhammad yang diklaim pertama kali membaca Al-Qur'an dengan suara keras di Makkah. Ahli fiqih dan tafsir generasi awal."},
+  {name:"Abu Musa al-Asy'ari",born:602,died:"662 M",city:"Yaman",country:"Yaman",cat:"sahabat",bio:"Pengikut Muhammad, gubernur Kufah dan Basrah. Dikenal sebagai ahli bacaan Al-Qur'an dengan suara merdu."},
+  {name:"Al-Hasan bin Ali",born:624,died:"670 M",city:"Madinah",country:"Arab Saudi",cat:"sahabat",bio:"Cucu Muhammad, putra Ali dan Fatimah. Menjabat khalifah secara singkat setelah kematian ayahnya. Mengakhiri perang saudara dengan menandatangani perjanjian damai bersama Muawiyah."},
+  {name:"Al-Husain bin Ali",born:626,died:"680 M",city:"Madinah",country:"Arab Saudi",cat:"sahabat",bio:"Cucu Muhammad, putra Ali dan Fatimah. Terbunuh bersama kelompok kecil pengikutnya di Karbala (680 M) oleh pasukan Yazid bin Muawiyah. Peristiwa ini memperdalam perpecahan antara kelompok Sunni dan Syiah."},
+  {name:"Zainab binti Ali",born:626,died:"682 M",city:"Madinah",country:"Arab Saudi",cat:"wanita",bio:"Putri Ali bin Abi Thalib dan Fatimah az-Zahra. Memainkan peran krusial pasca-Karbala dalam menyebarkan kesaksian atas kejadian tersebut dan menyelamatkan garis keturunan keluarga Muhammad."},
+  {name:"Ibrahim an-Nakha'i",born:670,died:"714 M",city:"Kufah",country:"Irak",cat:"ulama",bio:"Tabi'in besar, murid Abdullah bin Mas'ud. Ahli fiqih dan tafsir Kufah yang sangat berpengaruh sebelum mazhab Hanafi matang."},
+  {name:"Al-Mansur",born:714,died:"775 M",city:"Hasyimiyah",country:"Irak",cat:"khalifah",reignStart:754,bio:"Khalifah Abbasiyah kedua (754–775 M). Pendiri kota Baghdad sebagai ibu kota baru. Membunuh Abu Muslim al-Khurasani."},
+  {name:"Al-Mahdi",born:744,died:"785 M",city:"Madinah",country:"Arab Saudi",cat:"khalifah",reignStart:775,bio:"Khalifah Abbasiyah ketiga (775–785 M). Memperluas perpustakaan dan mendukung penerjemahan ilmu pengetahuan."},
+  {name:"Abu Yusuf",born:731,died:"798 M",city:"Kufah",country:"Irak",cat:"ulama",bio:"Murid utama Abu Hanifah. Penyusun Kitab al-Kharaj, referensi perpajakan Islam. Qadhi al-Qudhat di masa Harun ar-Rasyid."},
+  {name:"Abdullah bin Mubarak",born:726,died:"797 M",city:"Merv",country:"Turkmenistan",cat:"ulama",bio:"Ulama, sufi, dan tokoh militer terkemuka. Murid Imam Abu Hanifah. Dikenal dengan gelar 'Amirul Mukminin fi al-Hadits' atas otoritasnya dalam ilmu hadits."},
+  {name:"Muhammad bin Hasan asy-Syaibani",born:749,died:"805 M",city:"Wasis",country:"Irak",cat:"ulama",bio:"Murid Abu Hanifah dan Imam Malik. Penyusun kitab fiqih Hanafi fundamental: al-Hujjah, al-Mabsuth, dan al-Kabir."},
+  {name:"Al-Khawarizmi",born:780,died:"850 M",city:"Khawarezm",country:"Uzbekistan",cat:"ulama",works:[{year:820,title:"Al-Kitab al-Mukhtasar fi Hisab al-Jabr"}],bio:"Matematikawan dan astronom. Karyanya 'Al-Kitab al-Mukhtasar fi Hisab al-Jabr' meletakkan dasar aljabar modern. Nama latinnya 'Algoritmi' menjadi asal kata 'algoritma'."},
+  {name:"Al-Tabari",born:839,died:"923 M",city:"Amul",country:"Iran",cat:"ulama",works:[{year:923,title:"Tarikh al-Rusul wa al-Muluk"}],bio:"Sejarawan dan penafsir Al-Qur'an. Karyanya 'Tarikh al-Rusul wa al-Muluk' adalah kronik sejarah dunia paling komprehensif dari era Islam klasik."},
+  {name:"Al-Farabi",born:872,died:"950 M",city:"Farab",country:"Kazakhstan",cat:"ulama",bio:"Filsuf yang mensistematiskan pemikiran Aristoteles dalam konteks Islam. Disebut 'Guru Kedua' setelah Aristoteles. Berpengaruh besar pada Ibn Sina dan Ibn Rushd."},
+  {name:"Ibn al-Haytham",born:965,died:"1040 M",city:"Basrah",country:"Irak",cat:"ulama",works:[{year:1040,title:"Kitab al-Manazir"}],bio:"Fisikawan dan matematikawan. 'Kitab al-Manazir' (Book of Optics) meletakkan dasar ilmu optik modern dan metode eksperimen ilmiah. Pertama membuktikan cahaya masuk ke mata, bukan keluar dari mata."},
+  {name:"Al-Biruni",born:973,died:"1048 M",city:"Kath",country:"Uzbekistan",cat:"ulama",works:[{year:1030,title:"Tarikh al-Hind"}],bio:"Ilmuwan ensiklopedis: matematika, astronomi, geografi, sejarah. Menghitung radius bumi secara akurat menggunakan trigonometri. Mendokumentasikan peradaban India secara mendalam dalam 'Tarikh al-Hind'."},
+  {name:"Ibn Sina",born:980,died:"1037 M",city:"Afshana",country:"Uzbekistan",cat:"ulama",works:[{year:1020,title:"Kitab al-Shifa"},{year:1025,title:"Al-Qanun fi al-Tibb"}],bio:"Dokter dan filsuf. 'Al-Qanun fi al-Tibb' (Canon of Medicine) menjadi buku teks kedokteran standar di Eropa selama 600 tahun. Menyusun ensiklopedia ilmu pengetahuan 'Kitab al-Shifa'."},
+  {name:"Al-Ghazali",born:1058,died:"1111 M",city:"Thus",country:"Iran",cat:"ulama",works:[{year:1095,title:"Tahafut al-Falasifah"},{year:1111,title:"Ihya Ulumuddin"}],bio:"Teolog, filsuf, dan mistikus. Dalam 'Tahafut al-Falasifah' ia mengkritik keras filsafat Aristoteles. Karya 'Ihya Ulumuddin' mendamaikan hukum Islam dengan praktik sufi dan sangat berpengaruh hingga kini."},
+  {name:"Ibn Rushd",born:1126,died:"1198 M",city:"Cordoba",country:"Spanyol",cat:"ulama",bio:"Filsuf dan dokter Andalusia. Komentarnya atas Aristoteles sangat berpengaruh di Eropa Abad Pertengahan, mendorong munculnya Skolastisisme dan kebangkitan ilmu pengetahuan Barat."},
+  {name:"Salahudin al-Ayyubi",born:1137,died:"1193 M",city:"Tikrit",country:"Irak",cat:"panglima",bio:"Pendiri Dinasti Ayyubiyah. Merebut kembali Yerusalem dari Kerajaan Salib (1187 M) setelah 88 tahun. Citra sebagai penguasa ksatria dibentuk oleh kronik Muslim dan Latin, meski pemerintahannya juga pragmatis secara militer dan fiskal."},
+  {name:"Rumi",born:1207,died:"1273 M",city:"Balkh",country:"Afghanistan",cat:"ulama",works:[{year:1273,title:"Masnavi"}],bio:"Penyair dan mistikus sufi berbahasa Persia. 'Masnavi' dianggap sebagai mahakarya puisi sufi. Pendiri Tarikat Mevlevi di Konya. Karya-karyanya masih dibaca luas di seluruh dunia."},
+  {name:"Shajarat al-Durr",born:1220,died:"1257 M",city:"Kairo",country:"Mesir",cat:"wanita",bio:"Satu-satunya wanita yang memerintah sebagai Sultan Mesir (1250 M). Mengkomandoi pertahanan Mesir saat berhasil menangkap Raja Louis IX dari Prancis dalam Perang Salib VII. Kemudian digantikan suaminya Aybak."},
+  {name:"Al-Nawawi",born:1233,died:"1277 M",city:"Nawa",country:"Suriah",cat:"ulama",works:[{year:1277,title:"Riyadh as-Salihin"}],bio:"Ahli hadits dan fiqih mazhab Syafi'i. Penyusun 'Riyadh as-Salihin' dan 'Al-Arba'in an-Nawawiyyah'. Dikenal karena gaya hidup asketis dan penolakan terhadap hadiah penguasa."},
+  {name:"Baybars",born:1223,died:"1277 M",city:"Kipchak",country:"Kazakhstan",cat:"panglima",bio:"Sultan Mamluk yang menghentikan ekspansi Mongol di Ain Jalut (1260 M) — kekalahan besar pertama pasukan Mongol. Juga mengusir sisa-sisa pasukan Salib dari Levant secara sistematis."},
+  {name:"Ibnu Taimiyah",born:1263,died:"1328 M",city:"Harran",country:"Turki",cat:"ulama",bio:"Teolog Hanbali yang kontroversial. Dipenjara berkali-kali karena fatwa-fatwanya yang menentang penguasa. Pandangannya tentang bid'ah dan jihad berpengaruh besar pada gerakan reformasi Islam modern."},
+  {name:"Ibn Khaldun",born:1332,died:"1406 M",city:"Tunis",country:"Tunisia",cat:"ulama",works:[{year:1377,title:"Al-Muqaddimah"}],bio:"Sejarawan dan sosiolog. 'Al-Muqaddimah'-nya dianggap sebagai karya pertama filsafat sejarah dan sosiologi ilmiah. Memperkenalkan konsep 'asabiyah (solidaritas sosial) sebagai penggerak kebangkitan dan kejatuhan peradaban."},
+  {name:"Amr bin al-As",born:573,died:"664 M",city:"Mekkah",country:"Arab Saudi",cat:"panglima",bio:"Panglima militer awal Islam. Memimpin penaklukan Mesir (639–642 M) dan mendirikan Fustat. Dikenal licik dan pragmatis dalam strategi diplomasi serta militer. Sempat memihak Muawiyah dalam Perang Shiffin."},
+  {name:"Al-Khansa",born:575,died:"645 M",city:"Najd",country:"Arab Saudi",cat:"wanita",bio:"Penyair Arab pra-Islam dan awal Islam yang paling terkenal. Dikenal atas elegi untuk saudara-saudaranya yang tewas dalam pertempuran. Bertemu Muhammad dan diklaim sebagai penyair terhebat. Memeluk Islam setelah penaklukan Makkah."},
+  {name:"Usamah bin Zaid",born:625,died:"680 M",city:"Madinah",country:"Arab Saudi",cat:"panglima",bio:"Putra Zaid bin Haritsah dan Umm Ayman. Tradisi awal menyebut Muhammad menunjuknya memimpin ekspedisi ke Syam pada 632 M, keputusan yang diperdebatkan sebagian elite karena usianya masih muda."},
+  {name:"Yazid I bin Muawiyah",born:647,died:"683 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:680,bio:"Khalifah Umayyah kedua (680–683 M). Suksesinya menandai perubahan dari pemilihan elite menjadi monarki dinasti. Pemerintahannya dibayangi Karbala (680 M), pemberontakan Hijaz, dan citra negatif dalam banyak sumber pro-Alid."},
+  {name:"Al-Saffah",born:721,died:"754 M",city:"Humeimah",country:"Yordania",cat:"khalifah",reignStart:750,bio:"Khalifah Abbasiyah pertama (750–754 M). Memimpin pemberontakan yang menjatuhkan Dinasti Umayyah. Membunuh hampir seluruh anggota keluarga Umayyah yang ditangkap. Memindahkan ibu kota ke Kufah."},
+  {name:"Al-Jahiz",born:776,died:"869 M",city:"Basrah",country:"Irak",cat:"ulama",works:[{year:868,title:"Kitab al-Hayawan"}],bio:"Sastrawan, teolog Mu'tazilah, dan pengamat budaya Abbasiyah. 'Kitab al-Hayawan' memadukan zoologi, anekdot, sastra, dan refleksi sosial. Tradisi biografis populer menyebut ia meninggal setelah tertimpa tumpukan buku, meski detailnya tidak pasti."},
+  {name:"Al-Mu'tasim",born:796,died:"842 M",city:"Samarra",country:"Irak",cat:"khalifah",reignStart:833,bio:"Khalifah Abbasiyah kedelapan (833–842 M). Memindahkan ibu kota ke Samarra. Dikenal atas kebijakan militeris dan penggunaan pasukan Turk sebagai elite militer. Menaklukkan Amorium (838 M) dari Byzantium."},
+  {name:"Al-Mutawakkil",born:822,died:"861 M",city:"Samarra",country:"Irak",cat:"khalifah",reignStart:847,bio:"Khalifah Abbasiyah (847–861 M). Membalikkan kebijakan Mu'tazilah dan mendukung Sunni ortodoks. Memerintahkan pembunuhan saudaranya. Dibunuh oleh pengawal Turk dalam kudeta istana."},
+  {name:"Al-Ash'ari",born:873,died:"936 M",city:"Basrah",country:"Irak",cat:"ulama",bio:"Teolog dan pendiri mazhab akidah Asy'ariyah. Awalnya penganut Mu'tazilah lalu beralih. Menyusun sintesis rasionalisme Yunani dengan teks keagamaan Islam. Mazhabnya dominan dalam teologi Sunni hingga kini."},
+  {name:"Abd al-Rahman III",born:891,died:"961 M",city:"Cordoba",country:"Spanyol",cat:"khalifah",reignStart:929,bio:"Caliph Cordoba (929–961 M), puncak kejayaan Al-Andalus. Memproklamirkan diri sebagai caliph untuk menyaingi Abbasiyah Baghdad dan Fatimiyah Kairo. Membangun Madinat al-Zahra. Memerintah wilayah terluas di Spanyol Islam."},
+  {name:"Ibn Hazm",born:994,died:"1064 M",city:"Cordoba",country:"Spanyol",cat:"ulama",works:[{year:1027,title:"Al-Fisal fi al-Milal"}],bio:"Ulama Andalusia, filsuf, dan sejarawan. Penyusun 'Al-Fisal fi al-Milal' yang menganalisis perbandingan agama. Mazhabnya Zahiri — menolak analogi dan hanya mengakui teks literal. Sempat dipenjara dan diasingkan karena politik."},
+  {name:"Nuruddin al-Zanki",born:1118,died:"1174 M",city:"Aleppo",country:"Suriah",cat:"panglima",bio:"Penguasa Zankid dan pendahulu Salahudin. Membangun kekuasaan Muslim di Syam melalui perang, patronase madrasah, dan propaganda jihad anti-Salib. Reformasi institusionalnya membantu konsolidasi politik Suriah dan Mesir."},
+  {name:"Fakhr al-Din al-Razi",born:1149,died:"1209 M",city:"Rayy",country:"Iran",cat:"ulama",works:[{year:1210,title:"Mafatih al-Ghaib"}],bio:"Teolog, filsuf, dan polimate Persia. Menulis tafsir Al-Qur'an terbesar dalam tradisi Sunni ('Mafatih al-Ghaib'). Dikenal atas kritik tajam terhadap filsafat Ibn Sina. Dikuburkan di Herat, Afghanistan."},
+  {name:"Ibn Arabi",born:1165,died:"1240 M",city:"Murcia",country:"Spanyol",cat:"ulama",works:[{year:1230,title:"Fusus al-Hikam"},{year:1238,title:"Al-Futuhat al-Makkiyah"}],bio:"Sufi, filsuf, dan penulis produktif dari Al-Andalus. Dijuluki 'Syekh Akbar'. Karyanya 'Al-Futuhat al-Makkiyah' dan 'Fusus al-Hikam' sangat berpengaruh dalam tasawuf. Pandangannya tentang wahdat al-wujud kontroversial di kalangan ulama ortodoks."},
+  {name:"Al-Musta'sim Billah",born:1213,died:"1258 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1242,bio:"Khalifah Abbasiyah terakhir di Baghdad (1242–1258 M). Dikatakan tidak memahami ancaman Mongol. Ditangkap oleh Hulagu Khan dan dieksekusi. Menandai berakhirnya kekhalifahan Abbasiyah klasik."},
+  {name:"Qutuz",born:1220,died:"1260 M",city:"Kipchak",country:"Kazakhstan",cat:"panglima",bio:"Sultan Mamluk yang memimpin kemenangan Ain Jalut (1260 M) melawan Mongol. Sebelumnya budak Kipchak yang melarikan diri dari pasukan Mongol. Dibunuh oleh Baybars segera setelah kemenangan dalam kudeta istana."},
+  {name:"Sulaiman bin Abdul Malik",born:674,died:"717 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:715,bio:"Khalifah Umayyah (715–717 M). Putra Abdul Malik bin Marwan. Membatalkan ekspansi militer besar-besaran yang direncanakan Al-Walid. Dikenal atas kebijakan pro-pedesaan dan anti-urban."},
+  {name:"Hisham bin Abdul Malik",born:691,died:"743 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:724,bio:"Khalifah Umayyah (724–743 M). Pemerintahan terpanjang dalam sejarah Umayyah. Masa kestabilan administratif dan ekspansi di Asia Tengah. Dikritik karena kebijakan fiskal yang keras."},
+  {name:"Marwan II",born:688,died:"750 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:744,bio:"Khalifah Umayyah terakhir (744–750 M). Berusaha mempersatukan kekhalifahan yang hancur akibat pemberontakan. Kalah dalam Pertempuran Zab (750 M) melawan Abbasiyah. Tewas saat melarikan diri ke Mesir."},
+  {name:"Al-Hadi",born:764,died:"786 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:785,bio:"Khalifah Abbasiyah keempat (785–786 M). Putra Al-Mahdi. Pemerintahan sangat singkat. Dikabarkan meninggal karena penyakit, meski ada tuduhan diracun oleh ibunya Al-Khayzuran."},
+  {name:"Al-Amin",born:787,died:"813 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:809,bio:"Khalifah Abbasiyah (809–813 M). Putra Harun ar-Rasyid yang ditunjuk sebagai pewaris. Terlibat dalam perang saudara brutal melawan saudaranya Al-Ma'mun. Kalah, ditangkap, dan dieksekusi."},
+  {name:"Al-Wathiq",born:812,died:"847 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:842,bio:"Khalifah Abbasiyah (842–847 M). Putra Al-Mu'tasim. Dikenal sebagai pemerhati musik dan sastra. Pemerintahannya relatif damai dibandingkan para pendahulu dan penerusnya."},
+  {name:"Al-Muntasir",born:837,died:"862 M",city:"Samarra",country:"Irak",cat:"khalifah",reignStart:861,bio:"Khalifah Abbasiyah (861–862 M). Putra Al-Mutawakkil. Memimpin kudeta yang membunuh ayahnya. Pemerintahan singkat sebelum meninggal dalam keadaan mencurigakan, diduga diracun."},
+  {name:"Al-Mu'tamid",born:842,died:"892 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:870,bio:"Khalifah Abbasiyah (870–892 M). Pemerintahan terpanjang setelah era Al-Mutawakkil. Memindahkan ibu kota kembali ke Baghdad dari Samarra. Upaya revitalisasi kekhalifahan yang melemah akibat kudeta berulang."},
+  {name:"Al-Mu'tadid",born:857,died:"902 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:892,bio:"Khalifah Abbasiyah (892–902 M). Putra Al-Mu'tamid. Dikenal sebagai reformis militer dan administratif. Berhasil memperluas kembali wilayah Abbasiyah yang menyusut."},
+  {name:"Al-Qadir",born:947,died:"1031 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:991,bio:"Khalifah Abbasiyah (991–1031 M). Pemerintahan terpanjang dalam sejarah Abbasiyah (40 tahun). Masa kestabilan politik dan keagamaan. Memperkuat posisi Sunni ortodoks melawan Syiah dan Mu'tazilah."},
+  {name:"Al-Nasir",born:1158,died:"1225 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1180,bio:"Khalifah Abbasiyah (1180–1225 M). Pemerintahan terpanjang kedua dalam sejarah Abbasiyah. Upaya revitalisasi kekhalifahan melalui diplomasi, ekonomi, dan jaringan sufi. Gagal menghadapi ancaman Mongol."},
+  {name:"Al-Qa'im",born:1000,died:"1075 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1031,bio:"Khalifah Abbasiyah (1031–1075 M). Putra Al-Qadir. Pemerintahan panjang 44 tahun ditandai dengan penurunan kekuasaan politik ke tangan Seldjuk. Kekhalifahan menjadi simbol keagamaan tanpa kekuasaan militer efektif."},
+  {name:"Al-Muqtadi",born:1056,died:"1094 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1075,bio:"Khalifah Abbasiyah (1075–1094 M). Pemerintahan ditandai dengan dominasi Seldjuk yang semakin kuat. Masa pemerintahannya berlangsung saat Perang Salib I mulai dipersiapkan di Eropa."},
+  {name:"Al-Mustazhir",born:1076,died:"1118 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1094,bio:"Khalifah Abbasiyah (1094–1118 M). Pemerintahan selama Perang Salib I (1096–1099 M). Kekhalifahan tetap lemah secara politik di bawah bayang-bayang Seldjuk. Fokus pada kegiatan keagamaan dan budaya."},
+  {name:"Al-Mustarshid",born:1092,died:"1135 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1118,bio:"Khalifah Abbasiyah (1118–1135 M). Berupaya memperkuat kekuasaan Abbasiyah dari Seldjuk. Ditangkap dan dibunuh oleh pasukan Seldjuk saat perjalanan diplomatik."},
+  {name:"Al-Muqtafi",born:1096,died:"1160 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1136,bio:"Khalifah Abbasiyah (1136–1160 M). Berhasil membebaskan Baghdad dari ketergantungan pada Seldjuk. Memperluas wilayah dan pendapatan kekhalifahan. Dianggap sebagai pemulihan kekuasaan Abbasiyah sebelum kehancuran."},
+  {name:"Al-Mustadi",born:1142,died:"1180 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:1170,bio:"Khalifah Abbasiyah (1170–1180 M). Putra Al-Mustanjid. Pemerintahan stabil dengan hubungan baik dengan Salahudin al-Ayyubi. Meninggal saat kekhalifahan sedang dalam fase pemulihan."},
+  {name:"Al-Mahdi Billah",born:873,died:"934 M",city:"Kairouan",country:"Tunisia",cat:"khalifah",reignStart:909,bio:"Pendiri Dinasti Fatimiyah (909–934 M). Mengklaim keturunan Fatimah dan Ali. Membentuk kekhalifahan Syiah Ismailiyah di Afrika Utara. Memindahkan ibu kota ke Al-Mahdiyah."},
+  {name:"Al-Mu'izz li-Din Allah",born:932,died:"975 M",city:"Mahdia",country:"Tunisia",cat:"khalifah",reignStart:953,bio:"Khalifah Fatimiyah (953–975 M). Puncak kekuasaan Fatimiyah di Afrika Utara. Memerintahkan penaklukan Mesir (969 M) dan mendirikan Kairo. Dikenal atas patronase ilmu pengetahuan dan perpustakaan."},
+  {name:"Zaid bin Haritsah",born:581,died:"629 M",city:"Najd",country:"Arab Saudi",cat:"sahabat",bio:"Mantan budak yang dibebaskan dan diangkat sebagai anak oleh Muhammad sebelum aturan adopsi berubah dalam komunitas Muslim. Ia menjadi salah satu komandan ekspedisi awal dan tewas di Perang Mu'tah (629 M)."},
+  {name:"Hafshah binti Umar",born:605,died:"665 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Putri Umar bin Khattab dan salah satu istri Muhammad. Tradisi kodifikasi Al-Qur'an menyebut mushaf awal yang dikumpulkan pada masa Abu Bakar disimpan padanya sebelum dipakai dalam standardisasi Utsman."},
+  {name:"Umm Waraqah",born:600,died:"640 M",city:"Madinah",country:"Arab Saudi",cat:"wanita",bio:"Perempuan Madinah yang dikenal karena hafalan dan pembacaan Al-Qur'an dalam tradisi awal. Riwayat tentang perannya sering dipakai dalam perdebatan hukum mengenai otoritas perempuan dalam ruang ibadah domestik."},
+  {name:"Al-Hajjaj bin Yusuf",born:661,died:"714 M",city:"Taif",country:"Arab Saudi",cat:"panglima",bio:"Gubernur Umayyah yang menguasai Irak dan wilayah timur. Terkenal karena administrasi keras, reformasi fiskal, dan penumpasan pemberontakan Ibn al-Ash'ath. Namanya juga dikaitkan dengan penyeragaman bacaan dan ortografi mushaf."},
+  {name:"Abd al-Rahman I",born:731,died:"788 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:756,bio:"Pangeran Umayyah yang lolos dari revolusi Abbasiyah dan mendirikan Emirat Cordoba (756 M). Pemerintahannya memisahkan Al-Andalus dari kontrol politik Baghdad dan membangun basis dinasti Umayyah baru di Iberia."},
+  {name:"Fatima al-Fihri",born:800,died:"880 M",city:"Kairouan",country:"Tunisia",cat:"wanita",bio:"Tokoh perempuan yang dalam tradisi Maroko dikaitkan dengan pendirian Masjid al-Qarawiyyin di Fez (859 M). Narasi biografinya terlambat secara sumber, tetapi namanya penting dalam memori pendidikan Islam Maghreb."},
+  {name:"Hunayn ibn Ishaq",born:809,died:"873 M",city:"Al-Hira",country:"Irak",cat:"ulama",works:[{year:850,title:"Terjemahan Galen"}],bio:"Dokter Kristen Arab dan penerjemah utama di Baghdad Abbasiyah. Menerjemahkan karya Galen, Hippokrates, dan filsafat Yunani ke bahasa Arab dan Suryani, menjadikan ilmu kedokteran Yunani tersedia bagi sarjana Muslim."},
+  {name:"Al-Kindi",born:801,died:"873 M",city:"Kufah",country:"Irak",cat:"ulama",works:[{year:850,title:"Risalah filsafat dan optik"}],bio:"Filsuf Arab awal di lingkungan Abbasiyah. Mengadaptasi filsafat Yunani, matematika, musik, dan optik ke dalam bahasa intelektual Arab. Karyanya menunjukkan pertemuan patronase istana, penerjemahan, dan spekulasi rasional."},
+  {name:"Al-Razi",born:865,died:"925 M",city:"Rayy",country:"Iran",cat:"ulama",works:[{year:925,title:"Al-Hawi"}],bio:"Dokter dan filsuf Persia. Menulis karya klinis besar seperti 'Al-Hawi' dan membedakan cacar dari campak. Pandangan filsafatnya sering dianggap kontroversial oleh teolog Muslim karena lebih rasionalis dan independen."},
+  {name:"Sitt al-Mulk",born:970,died:"1023 M",city:"Kairo",country:"Mesir",cat:"wanita",bio:"Putri Fatimiyah dan saudari Al-Hakim bi-Amr Allah. Setelah hilangnya Al-Hakim pada 1021 M, ia menjadi pengatur transisi kekuasaan untuk Al-Zahir dan memainkan peran penting dalam stabilisasi istana Kairo."},
+  {name:"Al-Zahrawi",born:936,died:"1013 M",city:"Cordoba",country:"Spanyol",cat:"ulama",works:[{year:1000,title:"Al-Tasrif"}],bio:"Dokter bedah Andalusia. Ensiklopedia medisnya 'Al-Tasrif' memuat instrumen dan prosedur bedah yang kemudian diterjemahkan ke Latin dan dipakai di Eropa. Perannya lebih ilmiah-praktis daripada teologis."},
+  {name:"Alp Arslan",born:1029,died:"1072 M",city:"Khurasan",country:"Iran",cat:"panglima",bio:"Sultan Seldjuk yang mengalahkan Byzantium di Manzikert (1071 M). Kemenangan ini mempercepat migrasi Turk ke Anatolia dan mengubah keseimbangan kekuasaan antara Byzantium, dunia Islam, dan bangsa Turk."},
+  {name:"Nizam al-Mulk",born:1018,died:"1092 M",city:"Tus",country:"Iran",cat:"ulama",works:[{year:1091,title:"Siyasatnama"}],bio:"Wazir Seldjuk dan arsitek jaringan madrasah Nizamiyah. 'Siyasatnama' menggambarkan teori pemerintahan praktis, birokrasi, dan kontrol politik. Dibunuh oleh kelompok yang sering dikaitkan dengan Nizari Ismaili."},
+  {name:"Hulagu Khan",born:1217,died:"1265 M",city:"Mongolia",country:"Mongolia",cat:"panglima",bio:"Panglima Mongol pendiri Ilkhanate. Menghancurkan Baghdad pada 1258 M dan mengakhiri kekhalifahan Abbasiyah di kota itu. Kampanyenya mengubah struktur politik Iran, Irak, dan Syam."},
+  {name:"Osman I",born:1258,died:"1324 M",city:"Sogut",country:"Turki",cat:"khalifah",reignStart:1299,bio:"Pemimpin beylik Turk di Anatolia barat yang menjadi cikal bakal Dinasti Utsmaniyah. Pada masanya kekuasaan masih lokal, tetapi ekspansi perbatasan melawan Byzantium memberi dasar bagi negara Ottoman."},
+  {name:"Timur",born:1336,died:"1405 M",city:"Kesh",country:"Uzbekistan",cat:"panglima",bio:"Penakluk Turko-Mongol pendiri Dinasti Timurid. Kampanyenya menghancurkan kota-kota besar di Iran, Irak, India utara, dan Syam, tetapi istananya juga menjadi pusat patronase seni dan ilmu di Asia Tengah."},
+
+  /* ── WANITA TAMBAHAN ── */
+  {name:"Sumayyah binti Khayyat",born:560,died:"615 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Budak wanita yang termasuk pemeluk Islam paling awal. Dicambuk dan disiksa Abu Jahl di padang pasir Makkah karena menolak meninggalkan kepercayaannya. Tewas akibat siksaan — tercatat sebagai orang pertama yang mati karena bergabung dengan gerakan Muhammad. Suaminya Yasir dan anaknya Ammar juga disiksa bersama-sama."},
+  {name:"Nusaybah binti Ka'ab",born:595,died:"640 M",city:"Madinah",country:"Arab Saudi",cat:"wanita",bio:"Dikenal dengan nama Ummu Ammara. Salah satu dari sedikit perempuan yang tercatat aktif bertempur dalam sejarah awal Islam. Bertempur di Perang Uhud (625 M) saat banyak pasukan mundur, melindungi Muhammad dengan tubuhnya sendiri. Kehilangan tangan dalam Perang Yamamah (633 M) melawan nabi palsu Musaylimah."},
+  {name:"Ummu Salamah",born:596,died:"683 M",city:"Makkah",country:"Arab Saudi",cat:"wanita",bio:"Nama asli Hind binti Abi Umayyah. Janda yang dinikahi Muhammad dan dikenal atas kecerdasannya dalam politik. Saat Perjanjian Hudaybiyah (628 M), ia menyarankan Muhammad untuk memulai ritual terlebih dahulu tanpa menunggu persetujuan pengikut — saran yang terbukti efektif meredakan ketegangan. Menyampaikan banyak hadits dan hidup hingga usia tua."},
+  {name:"Rufaidah al-Aslamiyah",born:575,died:"632 M",city:"Madinah",country:"Arab Saudi",cat:"wanita",bio:"Perempuan Madinah yang mengorganisir perawatan medis lapangan dalam kampanye militer Muhammad. Mendirikan tenda kesehatan di dekat masjid untuk merawat korban luka. Melatih perempuan lain dalam perawatan medis darurat. Dianggap sebagai perawat pertama dalam sejarah Islam."},
+  {name:"Rabia al-Adawiyah",born:714,died:"801 M",city:"Basrah",country:"Irak",cat:"wanita",bio:"Tokoh asketisme Basrah yang kemudian sangat penting dalam memori tasawuf. Tradisi sufi mengaitkannya dengan gagasan cinta ilahi tanpa motif imbalan atau takut hukuman. Detail biografinya bercampur dengan legenda hagiografis."},
+  {name:"Sitt al-Wuzara",born:1200,died:"1285 M",city:"Kairo",country:"Mesir",cat:"wanita",bio:"Ulama perempuan dari Kairo yang mengajar fiqih Syafi'i dan memberikan ijazah kepada murid-murid laki-laki. Aktivitas mengajarnya terdokumentasi dalam catatan biografi ulama abad ke-13. Bukti bahwa perempuan berperan aktif dalam transmisi ilmu agama di era Mamluk."},
+
+  /* ── PANGLIMA TAMBAHAN ── */
+  {name:"Uqbah bin Nafi",born:622,died:"683 M",city:"Makkah",country:"Arab Saudi",cat:"panglima",bio:"Komandan ekspansi Arab ke Afrika Utara. Mendirikan kota Kairouan (670 M) di Tunisia — kota Arab tertua di Maghreb dan pusat penyebaran Islam di Afrika Barat. Dibunuh dalam penyergapan oleh pasukan Berber di bawah pemimpin Kusayla di dekat Biskra, Aljazair."},
+  {name:"Musa bin Nusair",born:640,died:"716 M",city:"Bani Makhzum",country:"Arab Saudi",cat:"panglima",bio:"Gubernur Afrika Utara yang mengirim Thariq bin Ziyad ke Spanyol (711 M), lalu menyeberang sendiri dengan pasukan lebih besar. Bersama menaklukkan hampir seluruh Semenanjung Iberia. Dipanggil pulang oleh Khalifah Sulayman bin Abdul Malik dan meninggal dalam kemiskinan setelah hartanya disita."},
+  {name:"Mehmed II (al-Fatih)",born:1432,died:"1481 M",city:"Edirne",country:"Turki",cat:"panglima",bio:"Sultan Utsmaniyah yang menaklukkan Konstantinopel (1453 M) mengakhiri Kekaisaran Byzantium setelah 1.100 tahun. Menggunakan meriam raksasa karya insinyur Hungaria, Urban, untuk meruntuhkan tembok Theodosian. Bergelar 'al-Fatih' (Sang Penakluk). Membangun Hagia Sophia menjadi masjid, mendukung seni dan arsitektur, dan mengumpulkan manuskrip Yunani."},
+  {name:"Dihya al-Kahina",born:640,died:"703 M",city:"Aures",country:"Aljazair",cat:"panglima",bio:"Ratu dan pemimpin militer suku Berber Aures yang memimpin perlawanan sengit terhadap invasi Arab di Afrika Utara. Mengalahkan pasukan Umayyah dalam beberapa pertempuran dan memaksa mereka mundur ke Tripoli selama bertahun-tahun. Akhirnya dikalahkan dan tewas sekitar 703 M. Kisahnya menjadi simbol perlawanan Berber."},
+
+  /* ── ULAMA TAMBAHAN ── */
+  {name:"Al-Idrisi",born:1100,died:"1165 M",city:"Ceuta",country:"Maroko",cat:"ulama",works:[{year:1154,title:"Tabula Rogeriana"}],bio:"Ahli geografi dari Ceuta yang bekerja di istana Raja Roger II dari Sisilia, Kristen. Menyusun 'Tabula Rogeriana' (1154 M) — peta dunia paling akurat di Abad Pertengahan. Peta dibuat dengan orientasi selatan di atas, sesuai konvensi kartografi Arab. Menjadi referensi navigasi selama berabad-abad."},
+  {name:"Ibn Battuta",born:1304,died:"1368 M",city:"Tangier",country:"Maroko",cat:"ulama",works:[{year:1355,title:"Rihla (Tuhfat al-Nuzzar)"}],bio:"Penjelajah dari Maroko yang menempuh lebih dari 120.000 km selama 29 tahun — paling jauh di antara penjelajah abad pertengahan manapun. Mengunjungi Afrika Utara, Timur Tengah, Afrika Timur, Asia Tengah, India, Asia Tenggara, dan China. Catatan perjalanannya 'Rihla' adalah sumber sejarah tak ternilai tentang dunia abad ke-14."},
+  {name:"Ibn Qayyim al-Jauziyah",born:1292,died:"1350 M",city:"Damaskus",country:"Suriah",cat:"ulama",bio:"Ulama Hanbali dan murid terdekat Ibnu Taimiyah. Dipenjara bersama gurunya. Penulis produktif yang membahas teologi, kedokteran jiwa, hukum, dan spiritualitas. Karya 'Zad al-Ma'ad' dan 'Madarij al-Salikin' masih banyak dibaca. Pendekatan psikologi spiritual dalam karyanya dianggap progresif untuk zamannya."},
+  {name:"Al-Muqaddasi",born:946,died:"1000 M",city:"Yerusalem",country:"Palestina",cat:"ulama",works:[{year:985,title:"Ahsan al-Taqasim"}],bio:"Ahli geografi yang lahir di Yerusalem. Karyanya 'Ahsan al-Taqasim fi Ma'rifat al-Aqalim' (985 M) adalah deskripsi etnografis dan geografis dunia Islam yang sistematis. Melakukan perjalanan langsung ke hampir semua wilayah yang ia deskripsikan, bukan hanya mengandalkan sumber tertulis."},
+  {name:"Ibnu Khaldun al-Andalusi",born:1248,died:"1315 M",city:"Sevilla",country:"Spanyol",cat:"ulama",bio:"Ulama dan filolog dari Andalusia (berbeda dari Ibnu Khaldun Tunisia). Bermigrasi ke Afrika Utara setelah jatuhnya wilayah Islam di Spanyol. Mendokumentasikan bahasa, sastra, dan kosakata Arab-Andalusia yang kemudian hilang — warisan tertulis penting peradaban Al-Andalus."},
+
+  /* ── KHALIFAH TAMBAHAN ── */
+  {name:"Yazid bin Abdul Malik",born:688,died:"724 M",city:"Damaskus",country:"Suriah",cat:"khalifah",reignStart:720,bio:"Khalifah Umayyah (720–724 M). Pemerintahannya pendek dan ditandai oleh pemberontakan Yazid bin al-Muhallab. Dikenal menghabiskan waktu di istana bersama penyanyi favorit Hababah dan Sallamah — perilaku yang dikritik keras oleh ulama sezaman."},
+  {name:"Al-Muqtadir Billah",born:895,died:"932 M",city:"Baghdad",country:"Irak",cat:"khalifah",reignStart:908,bio:"Khalifah Abbasiyah (908–932 M). Naik tahta di usia 13 tahun — termuda dalam sejarah Abbasiyah. Pemerintahannya dikuasai ibu dan para wazir. Digulingkan dua kali dan akhirnya tewas dalam pertempuran melawan panglimanya sendiri. Masa pemerintahannya menandai awal keruntuhan otoritas khalifah Abbasiyah."},
+  {name:"Al-Hakim bi-Amr Allah",born:985,died:"1021 M",city:"Kairo",country:"Mesir",cat:"khalifah",reignStart:996,bio:"Khalifah Fatimiyah (996–1021 M). Memerintahkan penghancuran Gereja Makam Kudus di Yerusalem (1009 M) — salah satu pemicu awal Perang Salib. Menerapkan aturan-aturan aneh termasuk larangan kue tertentu dan pembatasan gerak perempuan. Menghilang secara misterius pada 1021 M; para pengikut Druze menganggapnya masih hidup."},
+];
+
+const EVENTS = [
+  {name:"Perang Badar",born:624,died:"624 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"⚔",bio:"Pertempuran pertama skala besar antara pasukan Muhammad dan suku Quraisy Makkah (624 M). Kemenangan mengejutkan bagi pihak Muslim yang kalah jumlah."},
+  {name:"Perang Uhud",born:625,died:"625 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"⚔",bio:"Pertempuran kedua melawan Quraisy (625 M). Pasukan Muslim mengalami kekalahan parsial setelah unit pemanah meninggalkan posisi strategis. Hamzah tewas dalam pertempuran ini."},
+  {name:"Perang Khandaq",born:627,died:"627 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"⚔",bio:"Pertahanan Madinah dari serangan koalisi 10.000 pasukan dengan strategi parit raksasa yang diusulkan Salman al-Farisi (627 M). Koalisi mundur setelah pengepungan gagal."},
+  {name:"Perang Mu'tah",born:629,died:"629 M",city:"Mu'tah",country:"Yordania",cat:"event",icon:"⚔",bio:"Pertempuran pertama pasukan Islam melawan Byzantium (629 M). Tiga komandan tewas berturut-turut, sebelum Khalid bin Walid mengambil alih komando dan melakukan mundur teratur."},
+  {name:"Futuh Makkah",born:630,died:"630 M",city:"Makkah",country:"Arab Saudi",cat:"event",icon:"⚑",bio:"Penaklukan Makkah oleh Muhammad dengan sekitar 10.000 pasukan (630 M). Perlawanan minimal. Patung-patung di Ka'bah dihancurkan. Amnesti umum diberikan kepada penduduk Makkah."},
+  {name:"Perang Tabuk",born:630,died:"631 M",city:"Tabuk",country:"Arab Saudi",cat:"event",icon:"⚔",bio:"Ekspedisi militer terakhir yang dipimpin langsung oleh Muhammad menuju perbatasan Byzantium (630 M). Berlangsung di musim panas yang ekstrem; tidak terjadi pertempuran besar."},
+  {name:"Perang Yarmuk",born:636,died:"636 M",city:"Yarmuk",country:"Yordania",cat:"event",icon:"⚔",bio:"Pertempuran penentu melawan Byzantium di bawah komando Khalid bin Walid (636 M). Kemenangan ini mengakhiri dominasi Byzantium di Syam."},
+  {name:"Perang Qadisiyyah",born:636,died:"636 M",city:"Qadisiyyah",country:"Irak",cat:"event",icon:"⚔",bio:"Pertempuran penentu melawan kekaisaran Sasanid Persia di bawah Sa'd bin Abi Waqqas (636 M). Membuka jalan bagi penaklukan Irak."},
+  {name:"Pembunuhan Umar",born:644,died:"644 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"✝",bio:"Khalifah Umar bin Khattab ditusuk Abu Lu'lu'ah, seorang budak Persia, saat shalat Subuh. Meninggal tiga hari kemudian."},
+  {name:"Perang Jamal",born:656,died:"656 M",city:"Basrah",country:"Irak",cat:"event",icon:"⚔",bio:"Pertempuran antara koalisi Aisyah, Thalhah, dan Zubair melawan Ali bin Abi Thalib (656 M). Thalhah dan Zubair tewas dalam pertempuran."},
+  {name:"Pembunuhan Utsman",born:656,died:"656 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"✝",bio:"Khalifah Utsman bin Affan dibunuh oleh pemberontak yang mengepung rumahnya (656 M). Peristiwa ini memicu perang saudara pertama dalam Islam."},
+  {name:"Perang Shiffin",born:657,died:"657 M",city:"Shiffin",country:"Suriah",cat:"event",icon:"⚔",bio:"Pertempuran antara Ali bin Abi Thalib dan Muawiyah bin Abi Sufyan (657 M). Berakhir dengan tahkim (arbitrase) yang kontroversial. Ammar bin Yasir tewas dalam pertempuran ini."},
+  {name:"Pembunuhan Ali",born:661,died:"661 M",city:"Kufah",country:"Irak",cat:"event",icon:"✝",bio:"Ali bin Abi Thalib ditusuk Ibnu Muljam saat shalat Subuh di masjid Kufah. Meninggal dua hari kemudian."},
+  {name:"Perang Karbala",born:680,died:"680 M",city:"Karbala",country:"Irak",cat:"event",icon:"⚔",bio:"Pembantaian Al-Husain bin Ali dan kelompok kecil pengikutnya oleh pasukan Yazid bin Muawiyah di Karbala (680 M). Peristiwa ini memperdalam perpecahan antara kelompok Sunni dan Syiah."},
+  {name:"Pengepungan Konstantinopel I",born:674,died:"678 M",city:"Konstantinopel",country:"Turki",cat:"event",icon:"⛓",bio:"Pengepungan pertama kota Konstantinopel oleh pasukan Umayyah (674–678 M). Gagal karena pertahanan tembok laut yang kuat."},
+  {name:"Perang Zab",born:750,died:"750 M",city:"Zab",country:"Irak",cat:"event",icon:"⚔",bio:"Pertempuran penentu antara Dinasti Abbasiyah dan Umayyah (750 M). Khalifah Umayyah Marwan II kalah, menandai berakhirnya kekuasaan Umayyah."},
+  {name:"Didirikan Kota Baghdad",born:762,died:"762 M",city:"Baghdad",country:"Irak",cat:"event",icon:"⚒",bio:"Pembangunan kota Baghdad sebagai ibu kota Abbasiyah oleh Khalifah Al-Mansur (762 M). Dirancang melingkar (Round City)."},
+  {name:"Didirikan Baitul Hikmah",born:830,died:"830 M",city:"Baghdad",country:"Irak",cat:"event",icon:"⚒",bio:"Pusat penerjemahan dan riset ilmu pengetahuan yang didirikan Khalifah Al-Ma'mun di Baghdad (830 M). Menjadi perpustakaan dan lembaga riset terbesar di dunia pada masanya."},
+  {name:"Perang Salib I",born:1096,died:"1099 M",city:"Yerusalem",country:"Palestina",cat:"event",icon:"⚔",bio:"Ekspedisi militer dari Eropa Barat atas seruan Paus Urban II untuk merebut Yerusalem. Berhasil menduduki Yerusalem (1099 M) disertai pembantaian besar terhadap penduduk Muslim dan Yahudi."},
+  {name:"Perang Salib III",born:1189,died:"1192 M",city:"Acre",country:"Israel",cat:"event",icon:"⚔",bio:"Dipicu oleh jatuhnya Yerusalem ke tangan Saladin (1187 M). Dipimpin Richard I (Inggris), Philip II (Prancis), dan Frederick I (HRE). Berakhir dengan perjanjian damai tanpa merebut kembali Yerusalem."},
+  {name:"Penaklukan Yerusalem",born:1187,died:"1187 M",city:"Yerusalem",country:"Palestina",cat:"event",icon:"⚑",bio:"Salahudin al-Ayyubi merebut kembali Yerusalem dari Kerajaan Salib setelah 88 tahun. Berbeda dengan penaklukan Salib di 1099, Saladin memberikan amnesti dan mengizinkan penduduk Kristen meninggalkan kota."},
+  {name:"Kehancuran Baghdad",born:1258,died:"1258 M",city:"Baghdad",country:"Irak",cat:"event",icon:"✝",bio:"Pasukan Mongol di bawah Hulagu Khan menghancurkan Baghdad (1258 M), membunuh Khalifah Al-Musta'sim, dan membakar Baitul Hikmah. Menandai berakhirnya Kekhalifahan Abbasiyah di Baghdad."},
+  {name:"Pertempuran Ain Jalut",born:1260,died:"1260 M",city:"Ain Jalut",country:"Palestina",cat:"event",icon:"⚔",bio:"Pasukan Mamluk Mesir di bawah Baybars mengalahkan tentara Mongol (1260 M) — kekalahan besar pertama Mongol dalam sejarah. Menghentikan ekspansi Mongol ke Afrika dan Eropa."},
+  {name:"Penaklukan Konstantinopel",born:1453,died:"1453 M",city:"Konstantinopel",country:"Turki",cat:"event",icon:"⚑",bio:"Sultan Mehmed II Ottoman menaklukkan Konstantinopel (1453 M) mengakhiri Kekaisaran Byzantium setelah 1.000 tahun. Menandai awal era Ottoman sebagai kekuatan dunia dan berakhirnya Abad Pertengahan Eropa."},
+  {name:"Fitnah Kedua",born:680,died:"692 M",city:"Damaskus",country:"Suriah",cat:"event",icon:"⚔",bio:"Konflik sipil berkepanjangan setelah kematian Yazid I (680–692 M). Melibatkan pemberontakan Abdullah bin Zubair di Makkah, pemberontakan Syiah di Kufah, dan perebutan kekuasaan antar klan Umayyah. Berakhir dengan kemenangan Abdul Malik bin Marwan."},
+  {name:"Pertempuran Tours",born:732,died:"732 M",city:"Tours",country:"Prancis",cat:"event",icon:"⚔",bio:"Pertempuran antara pasukan Frankish di bawah Charles Martel dengan pasukan Muslim dari Al-Andalus (732 M). Kekalahan Muslim menghentikan ekspansi Islam ke Eropa Barat. Signifikansi pertempuran ini sering dibesar-besarkan dalam narasi Barat."},
+  {name:"Hijrah ke Madinah",born:622,died:"622 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"⚑",bio:"Muhammad dan para pengikutnya berpindah dari Makkah ke Madinah (622 M) atas undangan suku Aus dan Khazraj yang mencari mediator konflik internal. Peristiwa ini menandai titik balik gerakan Muhammad dari kelompok minoritas teraniaya menjadi kekuatan politik. Tahun 622 M kemudian ditetapkan sebagai tahun pertama kalender Hijriah oleh Khalifah Umar."},
+  {name:"Penaklukan Mesir",born:639,died:"642 M",city:"Fustat",country:"Mesir",cat:"event",icon:"⚑",bio:"Pasukan Arab di bawah Amr bin al-As menaklukkan Mesir dari Byzantium (639–642 M). Penduduk Kristen Koptik sebagian besar tidak melawan — mereka telah lama mengalami penindasan teologis dari Byzantium atas perbedaan doktrin Kristologi. Alexandria menyerah setelah pengepungan 14 bulan. Fustat didirikan sebagai ibu kota baru."},
+  {name:"Wabah Amwas",born:638,died:"639 M",city:"Syam",country:"Suriah",cat:"event",icon:"✝",bio:"Epidemi pes yang menghantam Syam selama kampanye penaklukan Arab (638–639 M). Menewaskan sekitar 25.000 orang termasuk panglima senior Abu Ubaidah bin Jarrah dan Muadz bin Jabal. Umar bin Khattab membatalkan perjalanan ke Suriah setelah mendapat laporan wabah. Peristiwa ini memunculkan diskusi panjang di kalangan ulama tentang boleh-tidaknya memasuki atau melarikan diri dari wilayah wabah."},
+  {name:"Penaklukan Afrika Utara",born:670,died:"710 M",city:"Kairouan",country:"Tunisia",cat:"event",icon:"⚑",bio:"Ekspansi Arab ke Maghreb (670–710 M) menghadapi perlawanan sengit dari suku-suku Berber. Uqbah bin Nafi mendirikan Kairouan (670 M). Pemimpin Berber Kusayla lalu Dihya al-Kahina memimpin perlawanan yang memaksa mundur pasukan Arab bertahun-tahun. Ekspansi baru berhasil diselesaikan setelah kedua pemimpin Berber tewas. Ceuta jatuh pada 710 M."},
+  {name:"Penaklukan Spanyol",born:711,died:"718 M",city:"Gibraltar",country:"Spanyol",cat:"event",icon:"⚑",bio:"Thariq bin Ziyad menyeberangi Selat Gibraltar dengan ~7.000 pasukan Arab-Berber (711 M) dan mengalahkan Raja Visigoth Roderick di Pertempuran Guadalete. Dalam 7 tahun hampir seluruh Semenanjung Iberia dikuasai, membentuk Al-Andalus. Keberhasilan ini dipermudah konflik internal antara bangsawan Visigoth, beberapa di antaranya mengundang pasukan Arab sebagai sekutu."},
+  {name:"Perang Salib II",born:1147,died:"1149 M",city:"Damaskus",country:"Suriah",cat:"event",icon:"⚔",bio:"Dipicu oleh jatuhnya County of Edessa ke Imad al-Din Zanki (1144 M). Dipimpin Raja Louis VII dari Prancis dan Kaisar Conrad III. Pengepungan Damaskus (1148 M) gagal total dalam lima hari. Bencana militer terbesar bagi Tentara Salib sejak Perang Salib I, dan mempererat persatuan penguasa Muslim di Syam."},
+  {name:"Reconquista Selesai",born:1492,died:"1492 M",city:"Granada",country:"Spanyol",cat:"event",icon:"⚑",bio:"Jatuhnya Emirat Granada ke tangan Kerajaan Kastilia dan Aragon (2 Januari 1492 M) menandai berakhirnya kehadiran politik Islam di Semenanjung Iberia setelah 781 tahun. Sultan Muhammad XII (Boabdil) menyerahkan kunci kota kepada Ferdinand dan Isabella. Para Muslim dan Yahudi kemudian dipaksa memilih antara konversi ke Katolik atau pengusiran."},
+  {name:"Invasi Mongol ke Persia",born:1219,died:"1221 M",city:"Samarkand",country:"Uzbekistan",cat:"event",icon:"⚔",bio:"Invasi Jenghis Khan ke Khwarazmian Shah (1219–1221 M). Samarkand, Bukhara, Merv, Nishapur, dan Herat dihancurkan. Jutaan orang tewas. Saluran irigasi kuno yang menopang peradaban di Asia Tengah rusak dan sebagian tidak pernah dipulihkan. Memutus rantai transmisi ilmu pengetahuan Islam yang berkembang pesat sebelumnya."},
+  {name:"Piagam Madinah",born:622,died:"624 M",city:"Madinah",country:"Arab Saudi",cat:"event",icon:"⚒",bio:"Dokumen politik yang dalam tradisi awal mengatur hubungan kelompok Muslim, klan Arab Madinah, dan beberapa kelompok Yahudi. Isinya menunjukkan Muhammad berperan sebagai mediator dan pemimpin konfederasi, bukan hanya pemimpin agama."},
+  {name:"Perjanjian Hudaybiyah",born:628,died:"628 M",city:"Hudaybiyah",country:"Arab Saudi",cat:"event",icon:"⚑",bio:"Gencatan senjata antara komunitas Muhammad dan Quraisy Makkah (628 M). Meski terlihat merugikan bagi sebagian pengikut, perjanjian ini memberi ruang ekspansi diplomatik dan membuka jalan menuju penaklukan Makkah dua tahun kemudian."},
+  {name:"Perang Riddah",born:632,died:"633 M",city:"Arabia",country:"Arab Saudi",cat:"event",icon:"⚔",bio:"Rangkaian kampanye Abu Bakar melawan suku-suku Arab yang menarik baiat, menolak pajak, atau mengikuti pemimpin profetik lain setelah kematian Muhammad. Hasilnya mengonsolidasikan otoritas Madinah atas Arabia."},
+  {name:"Pertempuran Nahavand",born:642,died:"642 M",city:"Nahavand",country:"Iran",cat:"event",icon:"⚔",bio:"Kemenangan Arab atas Sasanid yang mempercepat runtuhnya kekuasaan Persia. Sumber Muslim kemudian menyebutnya 'kemenangan segala kemenangan', tetapi proses islamisasi Iran berlangsung bertahap selama beberapa abad."},
+  {name:"Pembangunan Kubah Batu",born:691,died:"692 M",city:"Yerusalem",country:"Palestina",cat:"event",icon:"⚒",bio:"Abdul Malik bin Marwan membangun Kubah Batu di Haram al-Sharif. Monumen ini memperlihatkan ambisi simbolik Umayyah di Yerusalem, penggunaan inskripsi Qur'ani awal, dan kompetisi politik-keagamaan dengan Byzantium serta rival internal."},
+  {name:"Revolusi Abbasiyah",born:747,died:"750 M",city:"Khurasan",country:"Iran",cat:"event",icon:"⚔",bio:"Gerakan militer-politik dari Khurasan yang menggulingkan Umayyah. Koalisi pendukungnya mencakup mawali non-Arab, unsur pro-keluarga Muhammad, dan jaringan oposisi anti-Umayyah. Setelah menang, Abbasiyah memusatkan kekuasaan di Irak."},
+  {name:"Mihnah Abbasiyah",born:833,died:"848 M",city:"Baghdad",country:"Irak",cat:"event",icon:"⚖",bio:"Inkuisisi doktrinal negara Abbasiyah yang memaksa ulama menerima doktrin bahwa Al-Qur'an diciptakan. Kebijakan ini menunjukkan ketegangan antara otoritas khalifah, teologi Mu'tazilah, dan kelompok ahli hadits."},
+  {name:"Pendirian Samarra",born:836,died:"836 M",city:"Samarra",country:"Irak",cat:"event",icon:"⚒",bio:"Al-Mu'tasim memindahkan pusat pemerintahan Abbasiyah dari Baghdad ke Samarra untuk menampung elite militer Turk. Langkah ini memperkuat peran tentara profesional tetapi juga membuka era kudeta istana yang berulang."},
+  {name:"Fatimiyah Menaklukkan Mesir",born:969,died:"969 M",city:"Fustat",country:"Mesir",cat:"event",icon:"⚑",bio:"Pasukan Fatimiyah di bawah Jawhar al-Siqilli merebut Mesir dan mendirikan Kairo. Mesir menjadi pusat kekhalifahan Syiah Ismailiyah dan pesaing utama Abbasiyah Sunni di Baghdad."},
+  {name:"Seldjuk Masuk Baghdad",born:1055,died:"1055 M",city:"Baghdad",country:"Irak",cat:"event",icon:"⚑",bio:"Tughril Beg memasuki Baghdad dan menjadi pelindung militer khalifah Abbasiyah. Peristiwa ini memformalkan pembagian antara otoritas simbolik khalifah dan kekuasaan militer-politik sultan Seldjuk."},
+  {name:"Pertempuran Manzikert",born:1071,died:"1071 M",city:"Manzikert",country:"Turki",cat:"event",icon:"⚔",bio:"Alp Arslan mengalahkan Kaisar Byzantium Romanos IV. Dampaknya bukan penaklukan instan Anatolia, tetapi percepatan migrasi dan pembentukan kekuasaan Turk-Muslim di wilayah Byzantium timur."},
+  {name:"Pertempuran Hattin",born:1187,died:"1187 M",city:"Hattin",country:"Israel",cat:"event",icon:"⚔",bio:"Salahudin mengalahkan pasukan Kerajaan Yerusalem di Hattin. Kekalahan ini menghancurkan kekuatan militer utama Tentara Salib di Levant dan langsung membuka jalan bagi penaklukan Yerusalem."},
+  {name:"Kesultanan Delhi Berdiri",born:1206,died:"1206 M",city:"Delhi",country:"India",cat:"event",icon:"⚑",bio:"Qutb al-Din Aibak mendirikan Kesultanan Delhi setelah runtuhnya otoritas Ghurid di India utara. Negara ini menjadi pusat kekuasaan Muslim Indo-Persia dan berperan besar dalam perubahan politik, bahasa, dan budaya Asia Selatan."},
+  {name:"Beylik Utsmaniyah Muncul",born:1299,died:"1299 M",city:"Anatolia",country:"Turki",cat:"event",icon:"⚑",bio:"Kekuasaan Osman I di Anatolia barat menjadi cikal bakal negara Ottoman. Pada tahap awal ia hanyalah salah satu beylik perbatasan, tetapi posisinya dekat wilayah Byzantium memberi peluang ekspansi militer dan ekonomi."},
+  {name:"Timur Menaklukkan Delhi",born:1398,died:"1398 M",city:"Delhi",country:"India",cat:"event",icon:"⚔",bio:"Timur menyerbu Kesultanan Delhi dan menjarah kota pada 1398 M. Serangan ini menghancurkan otoritas Tughlaq, memperlemah India utara, dan memperlihatkan keterhubungan politik dunia Islam dari Transoxiana sampai Hindustan."},
+];
+
+const ALL_ITEMS = [...FIGURES, ...EVENTS];
+ALL_ITEMS.sort((a,b) => a.born - b.born);
+
+const ERAS = [
+  {label:'Pra-Islam & Masa Makkah', start:540, end:622, color:'rgba(220,170,40,0.1)', textColor:'#a07000'},
+  {label:'Khulafaur Rasyidin', start:622, end:661, color:'rgba(30,160,80,0.09)', textColor:'#1a6a30'},
+  {label:'Dinasti Umayyah', start:661, end:750, color:'rgba(30,100,190,0.09)', textColor:'#1050a0'},
+  {label:'Dinasti Abbasiyah', start:750, end:1258, color:'rgba(130,40,180,0.07)', textColor:'#6a20a0'},
+  {label:'Era Mamluk & Akhir Pertengahan', start:1258, end:1500, color:'rgba(180,60,40,0.07)', textColor:'#8a3020'},
+];
+
+const Y0 = 540, Y1 = 1500;
+const PX = 10;
+const ROW_H = 32, ROW_GAP = 4;
+
+function xOf(y) { return (y - Y0) * PX; }
+function totalW() { return (Y1 - Y0) * PX + 60; }
+
+const ALL_CATS = ['nabi','khalifah','sahabat','wanita','panglima','ulama','event'];
+let activeCats = new Set(ALL_CATS), searchQ = '', viewMode = 'compact';
+function getFiltered() {
+  return ALL_ITEMS.filter(f => {
+    const catOk = activeCats.has(f.cat);
+    const q = searchQ.toLowerCase();
+    return catOk && (!q || f.name.toLowerCase().includes(q));
+  });
+}
+
+function render() {
+  const filtered = getFiltered();
+  document.getElementById('countBadge').textContent = filtered.length + ' item';
+  const namesCol = document.querySelector('.names-col');
+  namesCol.style.display = viewMode === 'compact' ? 'none' : 'flex';
+
+  const W = totalW();
+
+  const ci = document.getElementById('chartInner');
+  ci.style.width = W + 'px';
+
+  // --- RULER ---
+  const ruler = document.getElementById('ruler');
+  ruler.style.width = W + 'px';
+  ruler.innerHTML = '';
+  for (let y = Y0; y <= Y1; y += 10) {
+    const x = xOf(y);
+    const is50 = y % 50 === 0;
+    const is20 = y % 20 === 0;
+    const div = document.createElement('div');
+    div.className = 'tick ' + (is50 ? 'major' : is20 ? 'mid' : 'minor');
+    div.style.left = x + 'px';
+    let inner = '';
+    if (is50) inner = `<span class="tick-label">${y} M</span>`;
+    else if (is20) inner = `<span class="tick-label">${y}</span>`;
+    inner += `<div class="tick-line"></div>`;
+    div.innerHTML = inner;
+    ruler.appendChild(div);
+  }
+
+  // --- ERA STRIP ---
+  const es = document.getElementById('eraStrip');
+  es.style.width = W + 'px';
+  es.innerHTML = '';
+  ERAS.forEach(e => {
+    const x1 = xOf(e.start), x2 = xOf(e.end);
+    const b = document.createElement('div');
+    b.className = 'era-block';
+    b.style.left = x1 + 'px';
+    b.style.width = (x2 - x1) + 'px';
+    b.style.background = e.color;
+    b.style.color = e.textColor;
+    b.textContent = e.label;
+    es.appendChild(b);
+  });
+
+  // Pre-calculate geometry
+  const items = filtered.map(f => {
+    const diedY = parseDied(f.died) || (f.born + 35);
+    const x1 = xOf(f.born);
+    const xEnd = xOf(parseDied(f.died) || f.born);
+    const minW = f.cat === 'event' ? 18 : 14;
+    const barW = Math.max(xEnd - x1, minW);
+    const centerX = f.cat === 'event' ? (x1 + Math.max(xEnd - x1, PX) / 2) : null;
+    return { f, x1, x2: x1 + barW, barW, centerX };
+  });
+
+  let contentH;
+  let lanes = [];
+
+  if (viewMode === 'compact') {
+    const sorted = [...items].sort((a, b) => a.x1 - b.x1 || a.x2 - b.x2);
+    sorted.forEach(item => {
+      let placed = false;
+      for (let li = 0; li < lanes.length; li++) {
+        const lane = lanes[li];
+        const last = lane[lane.length - 1];
+        if (item.x1 >= last.x2 + 2) {
+          lane.push(item);
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        lanes.push([item]);
+      }
+    });
+    contentH = lanes.length * (ROW_H + ROW_GAP) + 20;
+  } else {
+    contentH = filtered.length * (ROW_H + ROW_GAP) + 20;
+  }
+
+  ci.style.height = (contentH + 76 + 10) + 'px';
+
+  // --- GRID ---
+  const gl = document.getElementById('gridLayer');
+  gl.style.width = W + 'px';
+  gl.style.height = contentH + 'px';
+  gl.innerHTML = '';
+  ERAS.forEach(e => {
+    const band = document.createElement('div');
+    band.className = 'era-band-bg';
+    band.style.left = xOf(e.start) + 'px';
+    band.style.width = (xOf(e.end) - xOf(e.start)) + 'px';
+    band.style.background = e.color;
+    gl.appendChild(band);
+  });
+  for (let y = Y0; y <= Y1; y += 10) {
+    const vl = document.createElement('div');
+    vl.className = 'grid-vline' + (y % 50 === 0 ? ' major' : '');
+    vl.style.left = xOf(y) + 'px';
+    gl.appendChild(vl);
+  }
+
+  // --- BARS ---
+  const bl = document.getElementById('barsLayer');
+  bl.innerHTML = '';
+
+  // --- NAMES ---
+  const nl = document.getElementById('namesList');
+  nl.innerHTML = '';
+
+  if (viewMode === 'compact') {
+    lanes.forEach((lane, laneIdx) => {
+      lane.forEach(item => {
+        const { f, x1, barW } = item;
+        const color = CAT_COLORS[f.cat];
+        const barTop = laneIdx * (ROW_H + ROW_GAP) + ROW_H / 2;
+
+        if (f.cat === 'event') {
+          const marker = document.createElement('div');
+          marker.className = 'event-marker';
+          marker.textContent = f.icon || '⚔';
+          marker.style.left = item.centerX + 'px';
+          marker.style.top = barTop + 'px';
+          marker.title = f.name;
+          marker.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e); });
+          bl.appendChild(marker);
+        } else {
+          const bar = document.createElement('div');
+          bar.className = 'bar' + (f.cat === 'nabi' ? ' bar-nabi' : '');
+          bar.style.left = x1 + 'px';
+          bar.style.top = barTop + 'px';
+          bar.style.width = barW + 'px';
+          if (f.cat === 'khalifah' && f.reignStart) {
+            const diedYear = parseDied(f.died) || (f.born + 35);
+            const preSpan = Math.max(0, f.reignStart - f.born);
+            const totalSpan = diedYear - f.born;
+            const prePct = (preSpan / totalSpan) * 100;
+            bar.style.background = `linear-gradient(90deg, ${color}f0 0%, ${color}b0 ${prePct}%, #ff6d00f0 ${prePct}%, #ffca28b0 100%)`;
+          } else {
+            bar.style.background = `linear-gradient(90deg, ${color}f0, ${color}b0)`;
+          }
+          if (barW > 55) bar.textContent = f.name;
+          bar.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e); });
+          if (f.cat !== 'nabi') {
+            bar.addEventListener('mouseenter', () => { ageTooltip.style.display = 'block'; });
+            bar.addEventListener('mousemove', (e) => {
+              const rect = chartScroll.getBoundingClientRect();
+              const mouseX = e.clientX - rect.left + chartScroll.scrollLeft;
+              const year = Math.round(mouseX / PX) + Y0;
+              const age = Math.max(0, year - f.born);
+              ageTooltip.textContent = age;
+              ageTooltip.style.left = (mouseX + 8) + 'px';
+              ageTooltip.style.top = (e.clientY - rect.top + chartScroll.scrollTop - 18) + 'px';
+            });
+            bar.addEventListener('mouseleave', () => { ageTooltip.style.display = 'none'; });
+          }
+          bl.appendChild(bar);
+          if (f.reignStart) {
+            const reignIcon = document.createElement('span');
+            reignIcon.className = 'reign-icon';
+            reignIcon.textContent = '👑';
+            reignIcon.style.left = (xOf(f.reignStart) - x1) + 'px';
+            bar.appendChild(reignIcon);
+          }
+          if (f.works) {
+            f.works.forEach(w => {
+              const workIcon = document.createElement('span');
+              workIcon.className = 'work-icon';
+              workIcon.textContent = '📚';
+              workIcon.title = w.title;
+              workIcon.style.left = Math.max(0, Math.min(xOf(w.year) - x1, barW - 6)) + 'px';
+              bar.appendChild(workIcon);
+            });
+          }
+
+          if (barW <= 55) {
+            const label = document.createElement('div');
+            label.className = 'bar-label';
+            label.textContent = f.name;
+            label.style.left = (x1 + barW + 6) + 'px';
+            label.style.top = barTop + 'px';
+            bl.appendChild(label);
+          }
+        }
+      });
+    });
+  } else {
+    items.forEach(item => {
+      const { f, x1, barW } = item;
+      const color = CAT_COLORS[f.cat];
+
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+      if (f.cat === 'event') {
+        const marker = document.createElement('div');
+        marker.className = 'event-marker';
+        marker.textContent = f.icon || '⚔';
+        marker.style.left = item.centerX + 'px';
+        marker.title = f.name;
+        marker.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e); });
+        row.appendChild(marker);
+      } else {
+        const bar = document.createElement('div');
+        bar.className = 'bar' + (f.cat === 'nabi' ? ' bar-nabi' : '');
+        bar.style.left = x1 + 'px';
+        bar.style.width = barW + 'px';
+        if (f.cat === 'khalifah' && f.reignStart) {
+          const diedYear = parseDied(f.died) || (f.born + 35);
+          const preSpan = Math.max(0, f.reignStart - f.born);
+          const totalSpan = diedYear - f.born;
+          const prePct = (preSpan / totalSpan) * 100;
+          bar.style.background = `linear-gradient(90deg, ${color}f0 0%, ${color}b0 ${prePct}%, #ff6d00f0 ${prePct}%, #ffca28b0 100%)`;
+        } else {
+          bar.style.background = `linear-gradient(90deg, ${color}f0, ${color}b0)`;
+        }
+        if (barW > 55) bar.textContent = f.name;
+        bar.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e); });
+        if (f.cat !== 'nabi') {
+          bar.addEventListener('mouseenter', () => { ageTooltip.style.display = 'block'; });
+          bar.addEventListener('mousemove', (e) => {
+            const rect = chartScroll.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left + chartScroll.scrollLeft;
+            const year = Math.round(mouseX / PX) + Y0;
+            const age = Math.max(0, year - f.born);
+            ageTooltip.textContent = age;
+            ageTooltip.style.left = (mouseX + 8) + 'px';
+            ageTooltip.style.top = (e.clientY - rect.top + chartScroll.scrollTop - 18) + 'px';
+          });
+          bar.addEventListener('mouseleave', () => { ageTooltip.style.display = 'none'; });
+        }
+        row.appendChild(bar);
+        if (f.reignStart) {
+          const reignIcon = document.createElement('span');
+          reignIcon.className = 'reign-icon';
+          reignIcon.textContent = '👑';
+          reignIcon.style.left = (xOf(f.reignStart) - x1) + 'px';
+          bar.appendChild(reignIcon);
+        }
+        if (f.works) {
+          f.works.forEach(w => {
+            const workIcon = document.createElement('span');
+            workIcon.className = 'work-icon';
+            workIcon.textContent = '📚';
+            workIcon.title = w.title;
+            workIcon.style.left = Math.max(0, Math.min(xOf(w.year) - x1, barW - 6)) + 'px';
+            bar.appendChild(workIcon);
+          });
+        }
+      }
+      bl.appendChild(row);
+
+      const cell = document.createElement('div');
+      cell.className = 'name-cell';
+      cell.innerHTML = `<div class="name-dot" style="background:${color}"></div><div class="name-text">${f.name}</div>`;
+      cell.addEventListener('click', () => {
+        document.getElementById('chartScroll').scrollLeft = Math.max(0, x1 - 60);
+      });
+      nl.appendChild(cell);
+    });
+  }
+
+  syncScroll();
+}
+
+// Sync vertical scroll
+function syncScroll() {
+  const cs = document.getElementById('chartScroll');
+  const ns = document.getElementById('namesScroll');
+  let lock = false;
+  cs.onscroll = () => { if (lock) return; lock = true; ns.scrollTop = cs.scrollTop; lock = false; };
+  ns.onscroll = () => { if (lock) return; lock = true; cs.scrollTop = ns.scrollTop; lock = false; };
+}
+
+// Popup
+function showPopup(f, e) {
+  const p = document.getElementById('popup');
+  document.getElementById('pCat').textContent = CAT_LABEL[f.cat];
+  document.getElementById('pCat').style.color = CAT_COLORS[f.cat];
+  document.getElementById('pName').textContent = f.name;
+  document.getElementById('pYr').textContent = `${f.born} M — ${f.died}`;
+  document.getElementById('pLoc').textContent = `📍 ${f.city}, ${f.country}`;
+  document.getElementById('pBio').textContent = f.bio || '—';
+  p.classList.add('show');
+  const vw = window.innerWidth, vh = window.innerHeight;
+  let px = e.clientX + 14, py = e.clientY + 10;
+  if (px + 320 > vw - 8) px = e.clientX - 330;
+  if (py + 280 > vh - 8) py = e.clientY - 290;
+  if (py < 8) py = 8;
+  if (px < 8) px = 8;
+  p.style.left = px + 'px';
+  p.style.top = py + 'px';
+}
+
+document.getElementById('popupClose').onclick = () => document.getElementById('popup').classList.remove('show');
+document.addEventListener('click', e => { if (!document.getElementById('popup').contains(e.target)) document.getElementById('popup').classList.remove('show'); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('popup').classList.remove('show'); });
+
+function refreshCatChipState() {
+  const isAll = activeCats.size === ALL_CATS.length;
+  document.querySelectorAll('.chip[data-cat]').forEach(ch => {
+    const cat = ch.dataset.cat;
+    if (cat === 'all') ch.classList.toggle('active', isAll);
+    else ch.classList.toggle('active', activeCats.has(cat));
+  });
+}
+
+document.querySelectorAll('.chip[data-cat]').forEach(c => {
+  c.addEventListener('click', () => {
+    const cat = c.dataset.cat;
+    if (cat === 'all') {
+      activeCats = new Set(ALL_CATS);
+    } else {
+      if (activeCats.has(cat)) activeCats.delete(cat);
+      else activeCats.add(cat);
+      if (!activeCats.size) activeCats = new Set(ALL_CATS);
+    }
+    refreshCatChipState();
+    render();
+  });
+});
+
+document.getElementById('panelToggle').addEventListener('click', () => {
+  const btn = document.getElementById('panelToggle');
+  viewMode = viewMode === 'panel' ? 'compact' : 'panel';
+  btn.classList.toggle('active', viewMode === 'panel');
+  btn.textContent = viewMode === 'panel' ? 'Panel Nama: ON' : 'Panel Nama: OFF';
+  render();
+});
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQ = e.target.value;
+  render();
+});
+
+// Cursor tracker
+const chartScroll = document.getElementById('chartScroll');
+const cursorLine = document.createElement('div');
+cursorLine.className = 'cursor-line';
+const cursorInfo = document.createElement('div');
+cursorInfo.className = 'cursor-info';
+const ageTooltip = document.createElement('div');
+ageTooltip.className = 'age-tooltip';
+chartScroll.appendChild(cursorLine);
+chartScroll.appendChild(cursorInfo);
+chartScroll.appendChild(ageTooltip);
+
+chartScroll.addEventListener('mousemove', e => {
+  const rect = chartScroll.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const scrollLeft = chartScroll.scrollLeft;
+  const year = Math.round((x + scrollLeft) / PX) + Y0;
+
+  // Garis selalu menyentuh dari atas sampai bawah viewport (terlihat meski scroll ke bawah)
+  cursorLine.style.top = chartScroll.scrollTop + 'px';
+  cursorLine.style.height = chartScroll.clientHeight + 'px';
+  cursorLine.style.left = (x + scrollLeft) + 'px';
+  cursorLine.style.display = 'block';
+
+  // Info label selalu di dekat atas area yang terlihat
+  cursorInfo.style.top = (chartScroll.scrollTop + chartScroll.clientHeight - 36) + 'px';
+
+  let infoText = '';
+  if (year < 570) {
+    infoText = `${570 - year} tahun sebelum MUHAMMAD lahir`;
+  } else if (year > 632) {
+    infoText = `${year - 632} tahun setelah MUHAMMAD meninggal`;
+  } else {
+    infoText = `MUHAMMAD usia ${year - 570} tahun`;
+  }
+
+  cursorInfo.textContent = `${year} M · ${infoText}`;
+  cursorInfo.style.display = 'block';
+
+  const infoW = cursorInfo.offsetWidth;
+  if (x + infoW + 16 > rect.width) {
+    cursorInfo.style.left = (x - infoW - 10 + scrollLeft) + 'px';
+  } else {
+    cursorInfo.style.left = (x + 10 + scrollLeft) + 'px';
+  }
+});
+
+chartScroll.addEventListener('mouseleave', () => {
+  cursorLine.style.display = 'none';
+  cursorInfo.style.display = 'none';
+});
+
+const _toggleBtn = document.getElementById('panelToggle');
+_toggleBtn.classList.toggle('active', viewMode === 'panel');
+_toggleBtn.textContent = viewMode === 'panel' ? 'Panel Nama: ON' : 'Panel Nama: OFF';
+
+refreshCatChipState();
+render();
+</script>
+</body>
+</html>

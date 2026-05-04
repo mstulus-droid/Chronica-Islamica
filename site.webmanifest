@@ -1,0 +1,17 @@
+{
+  "name": "Chronica Islamica",
+  "short_name": "Chronica",
+  "description": "Linimasa sejarah Islam dengan pendekatan historis-sekuler.",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#2c2418",
+  "icons": [
+    {
+      "src": "assets/chronica-islamica-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -458,11 +458,22 @@
     position: absolute;
     top: 50%;
     transform: translate(-50%, -50%);
-    font-size: 10px;
+    width: 18px;
+    height: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
     line-height: 1;
     z-index: 5;
     filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
-    cursor: help;
+    cursor: pointer;
+    border-radius: 50%;
+    touch-action: manipulation;
+  }
+  .work-icon:hover, .work-icon:focus {
+    background: rgba(255,255,255,0.28);
+    outline: 1px solid rgba(255,255,255,0.5);
   }
   .name-cell.search-hit {
     background: rgba(255, 226, 92, 0.34);
@@ -540,6 +551,18 @@
   .popup-close:hover { color: var(--text); }
   .popup-bd { padding: 9px 14px 13px; }
   .popup-loc { font-size: 0.7rem; color: var(--text3); font-weight: 600; margin-bottom: 7px; }
+  .popup-works {
+    display: none;
+    margin: 0 0 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    background: #fff5cf;
+    color: #5f4210;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.35;
+    border: 1px solid rgba(200,125,0,0.22);
+  }
   .popup-bio { font-size: 0.8rem; color: var(--text2); line-height: 1.55; }
   .cursor-line {
     position: absolute;
@@ -666,6 +689,7 @@
   </div>
   <div class="popup-bd">
     <div class="popup-loc" id="pLoc"></div>
+    <div class="popup-works" id="pWorks"></div>
     <div class="popup-bio" id="pBio"></div>
   </div>
 </div>
@@ -925,6 +949,11 @@ function addSearchClass(el, f, matchCount) {
   el.classList.add('search-hit');
   if (matchCount === 1) el.classList.add('search-focus');
 }
+function getPoint(e) {
+  if (e.touches && e.touches.length) return e.touches[0];
+  if (e.changedTouches && e.changedTouches.length) return e.changedTouches[0];
+  return e;
+}
 function scrollToSearchTarget(target) {
   if (!target) return;
   const cs = document.getElementById('chartScroll');
@@ -1150,6 +1179,8 @@ function render() {
               workIcon.textContent = '📚';
               workIcon.title = w.title;
               workIcon.style.left = Math.max(0, Math.min(xOf(w.year) - x1, barW - 6)) + 'px';
+              workIcon.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e, w); });
+              workIcon.addEventListener('touchstart', e => { e.stopPropagation(); showPopup(f, e, w); }, {passive:true});
               bar.appendChild(workIcon);
             });
           }
@@ -1229,6 +1260,8 @@ function render() {
             workIcon.textContent = '📚';
             workIcon.title = w.title;
             workIcon.style.left = Math.max(0, Math.min(xOf(w.year) - x1, barW - 6)) + 'px';
+            workIcon.addEventListener('click', e => { e.stopPropagation(); showPopup(f, e, w); });
+            workIcon.addEventListener('touchstart', e => { e.stopPropagation(); showPopup(f, e, w); }, {passive:true});
             bar.appendChild(workIcon);
           });
         }
@@ -1260,19 +1293,31 @@ function syncScroll() {
 }
 
 // Popup
-function showPopup(f, e) {
+function showPopup(f, e, work = null) {
+  const point = getPoint(e);
   const p = document.getElementById('popup');
   document.getElementById('pCat').textContent = CAT_LABEL[f.cat];
   document.getElementById('pCat').style.color = CAT_COLORS[f.cat];
   document.getElementById('pName').textContent = f.name;
   document.getElementById('pYr').textContent = `${f.born} M — ${f.died}`;
   document.getElementById('pLoc').textContent = `📍 ${f.city}, ${f.country}`;
+  const worksBox = document.getElementById('pWorks');
+  if (work) {
+    worksBox.textContent = `Karya: ${work.title} (${work.year} M)`;
+    worksBox.style.display = 'block';
+  } else if (f.works && f.works.length) {
+    worksBox.textContent = `Karya: ${f.works.map(w => `${w.title} (${w.year} M)`).join('; ')}`;
+    worksBox.style.display = 'block';
+  } else {
+    worksBox.textContent = '';
+    worksBox.style.display = 'none';
+  }
   document.getElementById('pBio').textContent = f.bio || '—';
   p.classList.add('show');
   const vw = window.innerWidth, vh = window.innerHeight;
-  let px = e.clientX + 14, py = e.clientY + 10;
-  if (px + 320 > vw - 8) px = e.clientX - 330;
-  if (py + 280 > vh - 8) py = e.clientY - 290;
+  let px = point.clientX + 14, py = point.clientY + 10;
+  if (px + 320 > vw - 8) px = point.clientX - 330;
+  if (py + 280 > vh - 8) py = point.clientY - 290;
   if (py < 8) py = 8;
   if (px < 8) px = 8;
   p.style.left = px + 'px';
@@ -1345,9 +1390,12 @@ chartScroll.appendChild(cursorLine);
 chartScroll.appendChild(cursorInfo);
 chartScroll.appendChild(ageTooltip);
 
-chartScroll.addEventListener('mousemove', e => {
+let cursorHideTimer = null;
+function updateCursorTracker(e) {
+  const point = getPoint(e);
   const rect = chartScroll.getBoundingClientRect();
-  const x = e.clientX - rect.left;
+  const x = point.clientX - rect.left;
+  if (x < 0 || x > rect.width) return;
   const scrollLeft = chartScroll.scrollLeft;
   const year = Math.round((x + scrollLeft) / PX) + Y0;
 
@@ -1378,6 +1426,22 @@ chartScroll.addEventListener('mousemove', e => {
   } else {
     cursorInfo.style.left = (x + 10 + scrollLeft) + 'px';
   }
+}
+
+chartScroll.addEventListener('mousemove', updateCursorTracker);
+chartScroll.addEventListener('touchstart', e => {
+  clearTimeout(cursorHideTimer);
+  updateCursorTracker(e);
+}, {passive:true});
+chartScroll.addEventListener('touchmove', e => {
+  clearTimeout(cursorHideTimer);
+  updateCursorTracker(e);
+}, {passive:true});
+chartScroll.addEventListener('touchend', () => {
+  cursorHideTimer = setTimeout(() => {
+    cursorLine.style.display = 'none';
+    cursorInfo.style.display = 'none';
+  }, 1600);
 });
 
 chartScroll.addEventListener('mouseleave', () => {

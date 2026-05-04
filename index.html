@@ -75,7 +75,7 @@
   .search-wrap input {
     border: 1.5px solid var(--border);
     border-radius: 20px;
-    padding: 5px 12px 5px 28px;
+    padding: 5px 30px 5px 28px;
     font-family: 'Nunito', sans-serif;
     font-size: 0.8rem;
     background: var(--bg);
@@ -88,6 +88,29 @@
   .search-icon {
     position: absolute; left: 8px; top: 50%;
     transform: translateY(-50%); font-size: 0.7rem; pointer-events: none;
+  }
+  .search-clear {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(107,94,74,0.18);
+    color: var(--text2);
+    font-size: 0.82rem;
+    font-weight: 800;
+    line-height: 18px;
+    display: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .search-clear.show { display: block; }
+  .search-clear:hover {
+    background: rgba(196,58,10,0.18);
+    color: #c43a0a;
   }
   .search-suggestions {
     position: absolute;
@@ -580,7 +603,10 @@
     border-radius: 5px;
     font-size: 0.7rem;
     font-weight: 800;
-    white-space: nowrap;
+    white-space: normal;
+    max-width: min(360px, calc(100vw - 24px));
+    line-height: 1.25;
+    text-align: center;
     pointer-events: none;
     z-index: 21;
     display: none;
@@ -607,7 +633,19 @@
     .topbar h1 { font-size: 0.88rem; }
     .topbar h1 small { display: none; }
     .search-wrap input { width: 110px; font-size: 0.75rem; }
-    .search-suggestions { right: -36px; width: min(300px, calc(100vw - 16px)); }
+    .search-suggestions {
+      position: fixed;
+      top: 46px;
+      left: 8px;
+      right: 8px;
+      width: auto;
+      max-height: 42vh;
+    }
+    .cursor-info {
+      font-size: 0.68rem;
+      padding: 5px 8px;
+      max-width: calc(100vw - 20px);
+    }
     .count-badge { display: none; }
 
     .filter-row { padding-left: 10px; }
@@ -644,6 +682,7 @@
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Cari tokoh…">
+    <button class="search-clear" id="searchClear" type="button" aria-label="Hapus pencarian">×</button>
     <div class="search-suggestions" id="searchSuggestions"></div>
   </div>
   <span class="count-badge" id="countBadge"></span>
@@ -995,11 +1034,17 @@ function renderSearchSuggestions(matches) {
   });
   box.classList.add('show');
 }
+function refreshSearchClear() {
+  const clearBtn = document.getElementById('searchClear');
+  if (!clearBtn) return;
+  clearBtn.classList.toggle('show', Boolean(searchQ.trim()));
+}
 
 function render() {
   const filtered = getFiltered();
   const matched = searchQ.trim() ? filtered.filter(matchesSearch) : [];
   const matchCount = matched.length;
+  refreshSearchClear();
   renderSearchSuggestions(matched);
   document.getElementById('countBadge').textContent = searchQ.trim()
     ? `${matchCount} ditemukan / ${filtered.length} item`
@@ -1364,6 +1409,14 @@ document.getElementById('searchInput').addEventListener('input', e => {
   searchQ = e.target.value;
   render();
 });
+document.getElementById('searchClear').addEventListener('click', () => {
+  const input = document.getElementById('searchInput');
+  searchQ = '';
+  input.value = '';
+  document.getElementById('searchSuggestions').classList.remove('show');
+  input.focus();
+  render();
+});
 document.getElementById('searchInput').addEventListener('focus', () => {
   renderSearchSuggestions(getFiltered().filter(matchesSearch));
 });
@@ -1393,6 +1446,7 @@ chartScroll.appendChild(ageTooltip);
 let cursorHideTimer = null;
 function updateCursorTracker(e) {
   const point = getPoint(e);
+  const isTouch = e.type.startsWith('touch');
   const rect = chartScroll.getBoundingClientRect();
   const x = point.clientX - rect.left;
   if (x < 0 || x > rect.width) return;
@@ -1404,9 +1458,6 @@ function updateCursorTracker(e) {
   cursorLine.style.height = chartScroll.clientHeight + 'px';
   cursorLine.style.left = (x + scrollLeft) + 'px';
   cursorLine.style.display = 'block';
-
-  // Info label selalu di dekat atas area yang terlihat
-  cursorInfo.style.top = (chartScroll.scrollTop + chartScroll.clientHeight - 36) + 'px';
 
   let infoText = '';
   if (year < 570) {
@@ -1421,11 +1472,14 @@ function updateCursorTracker(e) {
   cursorInfo.style.display = 'block';
 
   const infoW = cursorInfo.offsetWidth;
-  if (x + infoW + 16 > rect.width) {
-    cursorInfo.style.left = (x - infoW - 10 + scrollLeft) + 'px';
-  } else {
-    cursorInfo.style.left = (x + 10 + scrollLeft) + 'px';
-  }
+  const preferredTop = isTouch ? 12 : chartScroll.clientHeight - cursorInfo.offsetHeight - 14;
+  cursorInfo.style.top = (chartScroll.scrollTop + Math.max(10, preferredTop)) + 'px';
+
+  const minLeft = scrollLeft + 10;
+  const maxLeft = scrollLeft + rect.width - infoW - 10;
+  let preferredLeft = x + 12 + scrollLeft;
+  if (x + infoW + 24 > rect.width) preferredLeft = x - infoW - 12 + scrollLeft;
+  cursorInfo.style.left = Math.max(minLeft, Math.min(preferredLeft, Math.max(minLeft, maxLeft))) + 'px';
 }
 
 chartScroll.addEventListener('mousemove', updateCursorTracker);

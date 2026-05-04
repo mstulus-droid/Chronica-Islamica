@@ -612,6 +612,16 @@
     display: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.2);
   }
+  .cursor-info::before {
+    content: "";
+    position: absolute;
+    left: var(--cursor-tip-x, 50%);
+    bottom: 100%;
+    transform: translateX(-50%);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid rgba(44, 36, 24, 0.88);
+  }
 
   /* POPUP HANDLE (mobile) */
   .popup-handle {
@@ -1443,13 +1453,15 @@ chartScroll.appendChild(cursorLine);
 chartScroll.appendChild(cursorInfo);
 chartScroll.appendChild(ageTooltip);
 
-let cursorHideTimer = null;
-function updateCursorTracker(e) {
-  const point = getPoint(e);
-  const isTouch = e.type.startsWith('touch');
+let cursorClientX = null;
+function isMobileView() {
+  return window.matchMedia('(max-width: 640px)').matches;
+}
+function updateCursorAtClientX(clientX, isTouch = false) {
   const rect = chartScroll.getBoundingClientRect();
-  const x = point.clientX - rect.left;
+  const x = clientX - rect.left;
   if (x < 0 || x > rect.width) return;
+  cursorClientX = clientX;
   const scrollLeft = chartScroll.scrollLeft;
   const year = Math.round((x + scrollLeft) / PX) + Y0;
 
@@ -1487,31 +1499,44 @@ function updateCursorTracker(e) {
   cursorInfo.style.top = (chartScroll.scrollTop + Math.max(10, preferredTop)) + 'px';
 
   const maxLeft = scrollLeft + rect.width - infoW - 10;
-  let preferredLeft = x + 12 + scrollLeft;
-  if (x + infoW + 24 > rect.width) preferredLeft = x - infoW - 12 + scrollLeft;
-  cursorInfo.style.left = Math.max(minLeft, Math.min(preferredLeft, Math.max(minLeft, maxLeft))) + 'px';
+  const preferredLeft = x + scrollLeft - infoW / 2;
+  const finalLeft = Math.max(minLeft, Math.min(preferredLeft, Math.max(minLeft, maxLeft)));
+  cursorInfo.style.left = finalLeft + 'px';
+  cursorInfo.style.setProperty('--cursor-tip-x', Math.max(10, Math.min((x + scrollLeft) - finalLeft, infoW - 10)) + 'px');
+}
+function updateCursorTracker(e) {
+  const point = getPoint(e);
+  updateCursorAtClientX(point.clientX, e.type.startsWith('touch'));
+}
+function showMobileCursorDefault() {
+  if (!isMobileView()) return;
+  const rect = chartScroll.getBoundingClientRect();
+  updateCursorAtClientX(rect.left + rect.width / 2, true);
 }
 
 chartScroll.addEventListener('mousemove', updateCursorTracker);
 chartScroll.addEventListener('touchstart', e => {
-  clearTimeout(cursorHideTimer);
   updateCursorTracker(e);
 }, {passive:true});
 chartScroll.addEventListener('touchmove', e => {
-  clearTimeout(cursorHideTimer);
   updateCursorTracker(e);
 }, {passive:true});
-chartScroll.addEventListener('touchend', () => {
-  cursorHideTimer = setTimeout(() => {
-    cursorLine.style.display = 'none';
-    cursorInfo.style.display = 'none';
-  }, 1600);
+chartScroll.addEventListener('touchend', e => {
+  const point = getPoint(e);
+  if (point && Number.isFinite(point.clientX)) updateCursorAtClientX(point.clientX, true);
+});
+chartScroll.addEventListener('scroll', () => {
+  if (isMobileView()) updateCursorAtClientX(cursorClientX || (chartScroll.getBoundingClientRect().left + chartScroll.clientWidth / 2), true);
 });
 
 chartScroll.addEventListener('mouseleave', () => {
+  if (isMobileView()) return;
   cursorLine.style.display = 'none';
   cursorInfo.style.display = 'none';
 });
+
+window.addEventListener('resize', showMobileCursorDefault);
+requestAnimationFrame(showMobileCursorDefault);
 
 const _toggleBtn = document.getElementById('panelToggle');
 _toggleBtn.classList.toggle('active', viewMode === 'panel');

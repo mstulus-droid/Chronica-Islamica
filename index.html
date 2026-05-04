@@ -603,8 +603,8 @@
     border-radius: 5px;
     font-size: 0.7rem;
     font-weight: 800;
-    white-space: normal;
-    max-width: min(360px, calc(100vw - 24px));
+    white-space: nowrap;
+    max-width: none;
     line-height: 1.25;
     text-align: center;
     pointer-events: none;
@@ -644,7 +644,7 @@
     .cursor-info {
       font-size: 0.68rem;
       padding: 5px 8px;
-      max-width: calc(100vw - 20px);
+      max-width: none;
     }
     .count-badge { display: none; }
 
@@ -1469,13 +1469,23 @@ function updateCursorTracker(e) {
   }
 
   cursorInfo.textContent = `${year} M · ${infoText}`;
+  cursorInfo.style.whiteSpace = 'nowrap';
+  cursorInfo.style.maxWidth = 'none';
   cursorInfo.style.display = 'block';
 
-  const infoW = cursorInfo.offsetWidth;
-  const preferredTop = isTouch ? 12 : chartScroll.clientHeight - cursorInfo.offsetHeight - 14;
+  const minLeft = scrollLeft + 10;
+  const maxTextWidth = Math.max(180, rect.width - 20);
+  let infoW = cursorInfo.offsetWidth;
+  const nearEdge = x < 72 || x > rect.width - 72;
+  if (isTouch && nearEdge && infoW > maxTextWidth * 0.68) {
+    cursorInfo.style.whiteSpace = 'normal';
+    cursorInfo.style.maxWidth = Math.min(maxTextWidth, Math.max(190, rect.width * 0.72)) + 'px';
+    infoW = cursorInfo.offsetWidth;
+  }
+
+  const preferredTop = chartScroll.clientHeight - cursorInfo.offsetHeight - 14;
   cursorInfo.style.top = (chartScroll.scrollTop + Math.max(10, preferredTop)) + 'px';
 
-  const minLeft = scrollLeft + 10;
   const maxLeft = scrollLeft + rect.width - infoW - 10;
   let preferredLeft = x + 12 + scrollLeft;
   if (x + infoW + 24 > rect.width) preferredLeft = x - infoW - 12 + scrollLeft;

@@ -34,6 +34,7 @@
     background: var(--bg);
     color: var(--text);
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -1457,6 +1458,15 @@ let cursorClientX = null;
 function isMobileView() {
   return window.matchMedia('(max-width: 640px)').matches;
 }
+function visibleChartHeight(rect) {
+  const vv = window.visualViewport;
+  if (!vv) return chartScroll.clientHeight;
+  const visualTop = vv.offsetTop || 0;
+  const visualBottom = visualTop + vv.height;
+  const visibleTop = Math.max(rect.top, visualTop);
+  const visibleBottom = Math.min(rect.bottom, visualBottom);
+  return Math.max(0, visibleBottom - visibleTop);
+}
 function updateCursorAtClientX(clientX, isTouch = false) {
   const rect = chartScroll.getBoundingClientRect();
   const x = clientX - rect.left;
@@ -1495,7 +1505,8 @@ function updateCursorAtClientX(clientX, isTouch = false) {
     infoW = cursorInfo.offsetWidth;
   }
 
-  const preferredTop = chartScroll.clientHeight - cursorInfo.offsetHeight - 14;
+  const usableH = isMobileView() ? visibleChartHeight(rect) : chartScroll.clientHeight;
+  const preferredTop = usableH - cursorInfo.offsetHeight - 14;
   cursorInfo.style.top = (chartScroll.scrollTop + Math.max(10, preferredTop)) + 'px';
 
   const maxLeft = scrollLeft + rect.width - infoW - 10;
@@ -1536,6 +1547,10 @@ chartScroll.addEventListener('mouseleave', () => {
 });
 
 window.addEventListener('resize', showMobileCursorDefault);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', showMobileCursorDefault);
+  window.visualViewport.addEventListener('scroll', showMobileCursorDefault);
+}
 requestAnimationFrame(showMobileCursorDefault);
 
 const _toggleBtn = document.getElementById('panelToggle');

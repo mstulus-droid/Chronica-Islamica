@@ -89,6 +89,62 @@
     position: absolute; left: 8px; top: 50%;
     transform: translateY(-50%); font-size: 0.7rem; pointer-events: none;
   }
+  .search-suggestions {
+    position: absolute;
+    top: calc(100% + 7px);
+    right: 0;
+    width: min(330px, calc(100vw - 24px));
+    max-height: 310px;
+    overflow-y: auto;
+    background: #fffaf2;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 14px 32px rgba(44,36,24,0.18);
+    z-index: 80;
+    display: none;
+    padding: 5px;
+  }
+  .search-suggestions.show { display: block; }
+  .suggestion-item {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    color: var(--text);
+    font-family: 'Nunito', sans-serif;
+    text-align: left;
+    padding: 7px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 3px 10px;
+    align-items: center;
+  }
+  .suggestion-item:hover, .suggestion-item:focus {
+    background: rgba(255, 226, 92, 0.34);
+    outline: none;
+  }
+  .suggestion-name {
+    font-size: 0.78rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .suggestion-meta {
+    font-size: 0.64rem;
+    font-weight: 800;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+  .suggestion-cat {
+    font-size: 0.62rem;
+    font-weight: 800;
+    color: var(--text2);
+    grid-column: 1 / -1;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
   .count-badge { font-size: 0.72rem; color: var(--text3); font-weight: 700; white-space: nowrap; }
 
   /* FILTER ROW */
@@ -528,6 +584,7 @@
     .topbar h1 { font-size: 0.88rem; }
     .topbar h1 small { display: none; }
     .search-wrap input { width: 110px; font-size: 0.75rem; }
+    .search-suggestions { right: -36px; width: min(300px, calc(100vw - 16px)); }
     .count-badge { display: none; }
 
     .filter-row { padding-left: 10px; }
@@ -564,6 +621,7 @@
   <div class="search-wrap">
     <span class="search-icon">🔍</span>
     <input type="text" id="searchInput" placeholder="Cari tokoh…">
+    <div class="search-suggestions" id="searchSuggestions"></div>
   </div>
   <span class="count-badge" id="countBadge"></span>
 </div>
@@ -878,11 +936,42 @@ function scrollToSearchTarget(target) {
     behavior: 'smooth'
   });
 }
+function renderSearchSuggestions(matches) {
+  const box = document.getElementById('searchSuggestions');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!searchQ.trim() || matches.length <= 1) {
+    box.classList.remove('show');
+    return;
+  }
+
+  matches.slice(0, 9).forEach(f => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'suggestion-item';
+    btn.innerHTML = `
+      <span class="suggestion-name">${f.name}</span>
+      <span class="suggestion-meta">${f.born}–${parseDied(f.died) || f.born} M</span>
+      <span class="suggestion-cat" style="color:${CAT_COLORS[f.cat]}">${CAT_LABEL[f.cat]}</span>
+    `;
+    btn.addEventListener('mousedown', e => e.preventDefault());
+    btn.addEventListener('click', () => {
+      const input = document.getElementById('searchInput');
+      searchQ = f.name;
+      input.value = f.name;
+      box.classList.remove('show');
+      render();
+    });
+    box.appendChild(btn);
+  });
+  box.classList.add('show');
+}
 
 function render() {
   const filtered = getFiltered();
   const matched = searchQ.trim() ? filtered.filter(matchesSearch) : [];
   const matchCount = matched.length;
+  renderSearchSuggestions(matched);
   document.getElementById('countBadge').textContent = searchQ.trim()
     ? `${matchCount} ditemukan / ${filtered.length} item`
     : filtered.length + ' item';
@@ -1229,6 +1318,19 @@ document.getElementById('panelToggle').addEventListener('click', () => {
 document.getElementById('searchInput').addEventListener('input', e => {
   searchQ = e.target.value;
   render();
+});
+document.getElementById('searchInput').addEventListener('focus', () => {
+  renderSearchSuggestions(getFiltered().filter(matchesSearch));
+});
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-wrap')) {
+    document.getElementById('searchSuggestions').classList.remove('show');
+  }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.getElementById('searchSuggestions').classList.remove('show');
+  }
 });
 
 // Cursor tracker

@@ -679,11 +679,31 @@
       animation: slideUp 0.22s ease;
     }
 
-    .bar { height: 18px; }
-    .bar.bar-nabi { height: 24px; }
-    .event-marker { font-size: 11px; }
+    /* Nama tokoh di batang 18px jatuh ke 10,9px, label tahun dan pita zaman ke
+       9-10px. Batang dinaikkan ke 22px (masih muat di baris 32px) supaya hurufnya
+       bisa 11,5px. Tinggi mistar sengaja tidak diubah: skripnya menghitung posisi
+       pencarian dan tinggi konten dengan angka 76 (mistar 56 + pita zaman 20). */
+    .bar { height: 22px; font-size: 0.72rem; }
+    .bar.bar-nabi { height: 26px; font-size: 0.76rem; }
+    .event-marker { font-size: 12px; }
+    .reign-icon { font-size: 12px; }
+    .tick-label { font-size: 0.72rem; }
+    .tick.mid .tick-label { font-size: 0.7rem; }
+    .era-block { font-size: 0.7rem; letter-spacing: 0.03em; }
+    .cursor-info { font-size: 0.74rem; }
+    .chip { font-size: 0.78rem; }
   }
 </style>
+<!-- Pratinjau tautan (WhatsApp, LinkedIn, X) -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ci.rhadzor.id/">
+<meta property="og:title" content="Chronica Islamica">
+<meta property="og:description" content="Linimasa sejarah Islam dengan pendekatan historis-sekuler.">
+<meta property="og:image" content="https://ci.rhadzor.id/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://ci.rhadzor.id/og.jpg">
 </head>
 <body>
 
